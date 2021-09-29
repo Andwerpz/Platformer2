@@ -5,8 +5,8 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
-import game.GameManager;
 import main.MainPanel;
+import state.GameManager;
 import util.Point;
 import util.Vector;
 

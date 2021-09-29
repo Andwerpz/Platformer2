@@ -5,9 +5,9 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import game.GameManager;
 import game.Map;
 import main.MainPanel;
+import state.GameManager;
 import util.Point;
 import util.Vector;
 
@@ -44,6 +44,10 @@ public abstract class Entity {
 	
 	public abstract void tick(Map map);
 	public abstract void draw(Graphics g);
+	
+	public boolean collision(Entity e) {
+		return this.envHitbox.collision(this.pos, e.envHitbox, e.pos);
+	}
 	
 	//draws the sprite so that it is stretched over the environment hitbox
 	public void drawSprite(BufferedImage sprite, Graphics g) {

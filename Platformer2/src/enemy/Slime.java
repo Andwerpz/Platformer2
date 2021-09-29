@@ -1,4 +1,4 @@
-package entities;
+package enemy;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -7,9 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import game.GameManager;
+import entities.Hitbox;
 import game.Map;
 import main.MainPanel;
+import state.GameManager;
 import util.GraphicsTools;
 import util.Point;
 import util.Vector;

@@ -1,16 +1,19 @@
-package entities;
+package item;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import entities.Entity;
+import entities.Hitbox;
 import game.Map;
+import state.GameManager;
 import util.GraphicsTools;
 import util.Vector;
 
-public class Coin extends Entity{
+public class Coin extends Item {
 	
-	public static ArrayList<BufferedImage> animationRotate;
+	public static ArrayList<BufferedImage> animation;
 	public static int frameInterval = 5;
 	public int animationFrame;
 	
@@ -28,15 +31,11 @@ public class Coin extends Entity{
 		
 		this.animationFrame = 0;
 	}
-	
-	public static void loadTextures() {
-		animationRotate = GraphicsTools.loadAnimation("/Textures/Coin/coin_rotate.png", 11, 11);
-	}
 
 	@Override
 	public void tick(Map map) {
 		this.animationFrame ++;
-		if(this.animationFrame / Coin.frameInterval >= Coin.animationRotate.size()) {
+		if(this.animationFrame / Coin.frameInterval >= Coin.animation.size()) {
 			this.animationFrame = 0;
 		}
 		
@@ -53,7 +52,12 @@ public class Coin extends Entity{
 	@Override
 	public void draw(Graphics g) {
 		
-		this.drawSprite(animationRotate.get(animationFrame / Coin.frameInterval), g);
+		this.drawSprite(animation.get(animationFrame / Coin.frameInterval), g);
+	}
+
+	@Override
+	public void onPickup() {
+		GameManager.gold ++;
 	}
 
 }

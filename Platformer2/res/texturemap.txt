@@ -1,3 +1,4 @@
 1 pixel_grass.png pixel_grass_side.png pixel_grass_corner.png
 2 pixel_stone.png pixel_stone_side.png pixel_stone_corner.png
 3 pixel_dirt.png pixel_dirt_side.png pixel_dirt_corner.png
+4 pixel_wood_tile.png pixel_wood_side.png pixel_wood_corner.png

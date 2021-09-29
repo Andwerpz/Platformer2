@@ -6,9 +6,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import entities.Hitbox;
-import game.GameManager;
 import game.Map;
 import main.MainPanel;
+import state.GameManager;
 import util.GraphicsTools;
 import util.Vector;
 
@@ -35,6 +35,8 @@ public class DamageNumber extends Particle{
 		
 		this.vel = new Vector((Math.random() - 0.5d) * 0.1, -(Math.random() * 0.15 + 0.1));
 		this.frictionInAir = false;
+		
+		this.timeLeft = 30;
 	}
 	
 	@Override
@@ -57,7 +59,7 @@ public class DamageNumber extends Particle{
 		
 		Graphics2D g2 = (Graphics2D) g;
 		
-		g2.setComposite(GraphicsTools.makeComposite(Math.max(0, (double) this.timeLeft / 60d)));
+		g2.setComposite(GraphicsTools.makeComposite(Math.max(0, (double) this.timeLeft / 30d)));
 		g2.setFont(font);
 		g2.setColor(Color.RED);
 		g2.drawString(this.valString, 

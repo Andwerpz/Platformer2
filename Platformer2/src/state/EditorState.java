@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import button.Button;
 import button.ButtonManager;
 import button.ToggleButton;
-import game.GameManager;
+import decorations.Decoration;
+import enemy.Enemy;
 import game.Map;
 import main.MainPanel;
 import util.Vector;
@@ -37,17 +38,20 @@ public class EditorState extends State {
 	public boolean placeEnemy = false;
 	public int enemyType = 1;
 	
-	public boolean fillMode = false;
-	public Point fillPress;
-	public Point fillRelease;
+	public boolean rectMode = false;
+	public Point rectPress;
+	public Point rectRelease;
+	public boolean leftMouseReleased = false;
+	
+	public boolean placeDecoration = false;
+	public int decorationType = 3;
 	
 	public int tileType = 1;
 	
 	public Vector cameraPos;
 
-	public EditorState(StateManager gsm, String filepath) {
-		super(gsm);
-		
+	public EditorState(String filepath) {
+				
 		bm = new ButtonManager();
 		
 		bm.addButton(new Button(10, 10, 100, 25, "Save Map"));
@@ -61,38 +65,35 @@ public class EditorState extends State {
 		bm.addToggleButton(new ToggleButton(10, 70, 100, 25, "Erase"));	bm.toggleButtons.get(0).setToggled(false);
 		bm.addToggleButton(new ToggleButton(10, 100, 100, 25, "Draw Grid"));	bm.toggleButtons.get(1).setToggled(true);
 		bm.addToggleButton(new ToggleButton(10, 160, 100, 25, "Place Enemy"));	bm.toggleButtons.get(2).setToggled(false);
+		bm.addToggleButton(new ToggleButton(10, 250, 100, 25, "Place Decoration"));	bm.toggleButtons.get(3).setToggled(false);
+		bm.addToggleButton(new ToggleButton(10, 280, 100, 25, "Rect Mode"));	bm.toggleButtons.get(4).setToggled(false);
 		
 		this.map = new Map();
 		this.map.drawTileGrid = true;
+		this.map.editing = true;
 		
+		int width = 100;
+		int height = 100;
 		
-		
-		this.map.map = new int[100][100];
-		for(int i = 0; i < map.map.length; i++) {
-			for(int j = 0; j < map.map[0].length; j++) {
-				if(Math.random() > 1) {
-					this.map.map[i][j] = 1;
-				}
-			}
-		}
+		this.map.map = new int[height][width];
 		
 		this.map.mapTileTexture = new BufferedImage[map.map.length][map.map[0].length];
 		
 		this.map.loadMapTileTextures();
 		
 		this.map.readFromFile(filepath);
-		this.map.calculateMapLight();
+		//this.map.calculateMapLight();
 		
 		this.cameraPos = new Vector(this.map.map[0].length / 2, this.map.map.length / 2);
 		this.cameraOffset = new Vector((int) ((cameraPos.x) * GameManager.tileSize), (int) ((cameraPos.y) * GameManager.tileSize));
 		
 	}
-
+	
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
 		
 	}
+
 	
 	public void writeToFile() {
 		int width = this.map.map[0].length;
@@ -106,11 +107,15 @@ public class EditorState extends State {
 			}
 			MainPanel.fout.println();
 		}
-		for(ArrayList<int[]> a : this.map.enemyWaves) {
+		for(ArrayList<double[]> a : this.map.enemyWaves) {
 			MainPanel.fout.println("wave");
-			for(int[] i : a) {
+			for(double[] i : a) {
 				MainPanel.fout.println(i[0] + " " + i[1] + " " + i[2]);
 			}
+		}
+		
+		for(double[] i : this.map.decorations) {
+			MainPanel.fout.println("decoration " + ((int) i[0]) + " "  + i[1] + " " + i[2]);
 		}
 		MainPanel.fout.flush();
 		MainPanel.fout.close();
@@ -139,6 +144,8 @@ public class EditorState extends State {
 		this.erase = bm.toggleButtons.get(0).getToggled();
 		map.drawTileGrid = bm.toggleButtons.get(1).getToggled();
 		this.placeEnemy = bm.toggleButtons.get(2).getToggled();
+		this.placeDecoration = bm.toggleButtons.get(3).getToggled();
+		this.rectMode = bm.toggleButtons.get(4).getToggled();
 		
 		double xDiff = mouse2.x - mouse.x;
 		double yDiff = mouse2.y - mouse.y;
@@ -152,8 +159,62 @@ public class EditorState extends State {
 		
 		//calculating where on the map the mouse is
 		//just do the opposite transformation required to go from map space to screen space
-		int mapX = (int) ((mouse.x + GameManager.cameraOffset.x - MainPanel.WIDTH / 2) / GameManager.tileSize);
-		int mapY = (int) ((mouse.y + GameManager.cameraOffset.y - MainPanel.HEIGHT / 2) / GameManager.tileSize);
+		double mapX = ((mouse.x + GameManager.cameraOffset.x - MainPanel.WIDTH / 2) / GameManager.tileSize);
+		double mapY = ((mouse.y + GameManager.cameraOffset.y - MainPanel.HEIGHT / 2) / GameManager.tileSize);
+		mapX = Math.round(mapX * 2d) / 2d;
+		mapY = Math.round(mapY * 2d) / 2d;
+		
+		if(!this.erase) {
+			if(this.placeEnemy) {
+				Enemy.getEnemy(enemyType, new Vector(mapX, mapY)).draw(g);
+			}
+			else if(this.placeDecoration) {
+				Decoration.getDecoration(decorationType, new Vector(mapX, mapY)).draw(g);
+			}
+			else {
+				//maybe you could draw the tile. Not needed though.
+			}
+		}
+		
+		if(this.leftMouseReleased) {
+			this.leftMouseReleased = false;
+			if(this.rectMode) {
+				int startMapX = (int) ((this.rectPress.x + GameManager.cameraOffset.x - MainPanel.WIDTH / 2) / GameManager.tileSize);
+				int startMapY = (int) ((this.rectPress.y + GameManager.cameraOffset.y - MainPanel.HEIGHT / 2) / GameManager.tileSize);
+				
+				int endMapX = (int) ((this.rectRelease.x + GameManager.cameraOffset.x - MainPanel.WIDTH / 2) / GameManager.tileSize);
+				int endMapY = (int) ((this.rectRelease.y + GameManager.cameraOffset.y - MainPanel.HEIGHT / 2) / GameManager.tileSize);
+				
+				if(startMapX > endMapX) {
+					int temp = startMapX;
+					startMapX = endMapX;
+					endMapX = temp;
+				}
+				
+				if(startMapY > endMapY) {
+					int temp = startMapY;
+					startMapY = endMapY;
+					endMapY = temp;
+				}
+				
+				if(this.erase) {
+					for(int i = Math.max(startMapY, 0); i < Math.min(endMapY + 1, this.map.map.length); i++) {
+						for(int j = Math.max(startMapX, 0); j < Math.min(endMapX + 1, this.map.map[0].length); j++) {
+							this.placeTile(j, i, 0);
+						}
+					}
+				}
+				
+				else {
+					for(int i = Math.max(startMapY, 0); i < Math.min(endMapY + 1, this.map.map.length); i++) {
+						for(int j = Math.max(startMapX, 0); j < Math.min(endMapX + 1, this.map.map[0].length); j++) {
+							
+							this.placeTile(j, i, this.tileType);
+						}
+					}
+				}
+			}
+		}
 		
 		if(this.leftMouse) {
 			if(this.placeEnemy) {
@@ -174,16 +235,38 @@ public class EditorState extends State {
 						}
 					}
 					if(!contains) {
-						this.map.enemyWaves.get(this.map.selectedWave).add(new int[] {this.enemyType, mapY, mapX});
+						this.map.enemyWaves.get(this.map.selectedWave).add(new double[] {this.enemyType, mapY, mapX});
 					}	
+				}
+			}
+			else if(this.placeDecoration) {
+				if(this.erase) {
+					for(int i = 0; i < this.map.decorations.size(); i++) {
+						if(this.map.decorations.get(i)[1] == mapY && this.map.decorations.get(i)[2] == mapX) {
+							this.map.decorations.remove(i);
+							System.out.println("CONTAINS");
+							break;
+						}
+					}
+				}
+				else {
+					boolean contains = false;
+					for(double[] i : this.map.decorations) {
+						if(i[0] == this.decorationType && i[1] == mapY && i[2] == mapX) {
+							contains = true;
+						}
+					}
+					if(!contains) {
+						this.map.decorations.add(new double[] {this.decorationType, mapY, mapX});
+					}
 				}
 			}
 			else {
 				if(mapX >= 0 && mapX < this.map.map[0].length && mapY >= 0 && mapY < this.map.map.length) {
-					if(erase && this.map.map[mapY][mapX] != 0) {
-						this.map.map[mapY][mapX] = 0;
-						for(int i = mapY - 1; i <= mapY + 1; i++) {
-							for(int j = mapX - 1; j <= mapX + 1; j++) {
+					if(erase && this.map.map[(int) mapY][(int) mapX] != 0) {
+						this.map.map[(int) mapY][(int) mapX] = 0;
+						for(int i = (int) mapY - 1; i <= (int) mapY + 1; i++) {
+							for(int j = (int) mapX - 1; j <= (int) mapX + 1; j++) {
 								if(i >= 0 && i < this.map.map.length && j >= 0 && j < this.map.map[0].length) {
 									this.map.loadTileTextures(i, j);
 								}
@@ -191,9 +274,9 @@ public class EditorState extends State {
 						}
 					}
 					else if(!erase){
-						this.map.map[mapY][mapX] = this.tileType;
-						for(int i = mapY - 1; i <= mapY + 1; i++) {
-							for(int j = mapX - 1; j <= mapX + 1; j++) {
+						this.map.map[(int) mapY][(int) mapX] = this.tileType;
+						for(int i = (int) mapY - 1; i <= (int) mapY + 1; i++) {
+							for(int j = (int) mapX - 1; j <= (int) mapX + 1; j++) {
 								if(i >= 0 && i < this.map.map.length && j >= 0 && j < this.map.map[0].length) {
 									this.map.loadTileTextures(i, j);
 								}
@@ -213,9 +296,23 @@ public class EditorState extends State {
 		bm.draw(g);
 		
 		g.drawRect(150, 40, 25, 25);
-		g.drawImage(map.tileTextures.get(map.tileTextureMap.get(this.tileType)), 151, 41, 24, 24, null);
+		g.drawImage(Map.tileTextures.get(Map.tileTextureMap.get(this.tileType)), 151, 41, 24, 24, null);
 		
 		g.drawString("WAVE: " + (map.selectedWave + 1), 130, 205);
+	}
+	
+	public void placeTile(int x, int y, int tileType) {
+		if(x >= 0 && x < this.map.map[0].length && y >= 0 && y < this.map.map.length) {
+			this.map.map[y][x] = tileType;
+			
+			for(int i = (int) y - 1; i <= (int) y + 1; i++) {
+				for(int j = (int) x - 1; j <= (int) x + 1; j++) {
+					if(i >= 0 && i < this.map.map.length && j >= 0 && j < this.map.map[0].length) {
+						this.map.loadTileTextures(i, j);
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -244,6 +341,7 @@ public class EditorState extends State {
 		String which = bm.buttonClicked(arg0);
 		
 		if(which != null) {
+			this.leftMouseReleased = false;
 			switch(which) {
 			case "Save Map":
 				this.writeToFile();
@@ -251,7 +349,7 @@ public class EditorState extends State {
 				
 			case "Tile Type":
 				this.tileType ++;
-				if(this.tileType == this.map.tileTextureMap.size() + 1) {
+				if(this.tileType == Map.tileTextureMap.size() + 1) {
 					this.tileType = 1;
 				}
 				break;
@@ -262,7 +360,7 @@ public class EditorState extends State {
 				break;
 				
 			case "Add Wave":
-				this.map.enemyWaves.add(new ArrayList<int[]>());
+				this.map.enemyWaves.add(new ArrayList<double[]>());
 				this.map.selectedWave = this.map.enemyWaves.size() - 1;
 				break;
 				
@@ -299,6 +397,7 @@ public class EditorState extends State {
 		}
 		else if(arg0.getButton() == MouseEvent.BUTTON1) {
 			this.leftMouse = true;
+			this.rectPress = new Point(arg0.getX(), arg0.getY());
 		}
 		else if(arg0.getButton() == MouseEvent.BUTTON3) {
 			this.rightMouse = true;
@@ -311,6 +410,8 @@ public class EditorState extends State {
 	public void mouseReleased(MouseEvent arg0) {
 		if(arg0.getButton() == MouseEvent.BUTTON1) {
 			this.leftMouse = false;
+			this.leftMouseReleased = true;
+			this.rectRelease = new Point(arg0.getX(), arg0.getY());
 		}
 		else if(arg0.getButton() == MouseEvent.BUTTON3) {
 			this.rightMouse = false;

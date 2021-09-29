@@ -11,26 +11,19 @@ import button.ButtonManager;
 import button.Button;
 import button.SliderButton;
 import button.ToggleButton;
-import game.GameManager;
 import util.TextBox;
 
 public class MenuState extends State{
 	
 	ButtonManager bm;
-
-	public GameManager gm;
 	
-	public MenuState(StateManager gsm) {
-		super(gsm);
-		
+	public MenuState() {
 		bm = new ButtonManager();
-		gm = new GameManager();
 		
 	}
 
 	@Override
 	public void init() {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -47,22 +40,21 @@ public class MenuState extends State{
 	public void draw(Graphics g, Point mouse) {
 		
 		bm.draw(g);
-		gm.draw(g, mouse);
+		
 	}
 
 	@Override
 	public void keyPressed(int k) {
-		gm.keyPressed(k);
+	
 	}
 
 	@Override
 	public void keyReleased(int k) {
-		gm.keyReleased(k);
+
 	}
 
 	@Override
 	public void keyTyped(int k) {
-		gm.keyTyped(k);
 	}
 
 	@Override
@@ -86,7 +78,7 @@ public class MenuState extends State{
 	public void mousePressed(MouseEvent arg0) {
 		
 		bm.pressed(arg0);
-		gm.mousePressed(arg0);
+
 
 	}
 

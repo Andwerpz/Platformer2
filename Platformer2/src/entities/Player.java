@@ -4,17 +4,30 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
-import game.GameManager;
 import game.Map;
 import main.Main;
 import main.MainPanel;
 import melee.MeleeAttack;
 import particles.DamageNumber;
+import state.GameManager;
+import util.GraphicsTools;
 import util.Point;
 import util.Vector;
 
 public class Player extends Entity{
+	
+	public int baseHealthUpgrades;
+	
+	public static ArrayList<BufferedImage> animationIdle;
+	public static int idleFrameInterval = 1;
+	public int idleFrame = 0;
+	
+	public int health;
+	public int maxHealth = 100;
+	
 	
 	public boolean left = false;
 	public boolean right = false;
@@ -22,10 +35,10 @@ public class Player extends Entity{
 	
 	public boolean immune = false;
 	public int immuneTimeLeft;
-	public int immuneTime = 60;
+	public int immuneTime = 30;
 	
 	public MeleeAttack ma;
-	public int attackCooldown = 30;
+	public int attackCooldown = 20;
 	public int attackTimer;
 	
 	public boolean mouseAttack = false;
@@ -34,13 +47,14 @@ public class Player extends Entity{
 	
 	public java.awt.Point mouse = new java.awt.Point(0, 0);
 	
-	public int health;
-	public int maxHealth = 100;
 	
-	public Player(java.awt.Point mouse, Vector pos) {
+	
+	public Player(Vector pos) {
 		super();
 		
-		this.envHitbox = new Hitbox(0.7, 1.5);
+		this.width = 0.7;
+		this.height = 1.5;
+		this.envHitbox = new Hitbox(width, height);
 		this.pos = new Vector(pos);
 		
 		this.ma = new MeleeAttack();
@@ -53,11 +67,17 @@ public class Player extends Entity{
 		this.health = maxHealth;
 		
 		this.attackTimer = 0;
+		
+		this.baseHealthUpgrades = 0;
+	}
+	
+	public static void loadTextures() {
+		Player.animationIdle = GraphicsTools.loadAnimation("/Textures/Player/astolfo.png", 474, 520);
 	}
 	
 	//takes in hitbox and position vector and checks whether the hitbox collides with the player
 	//if yes, then calculate the x difference from the player to the position vector. 
-	//The y vel change is constant, the x vel is dependent on the x difference.
+	//The y vel change is constant, the direction of x is dependent on the x difference.
 	public void hit(Hitbox h, Vector pos, int damage) {
 		if(this.envHitbox.collision(this.pos, h, pos) && !this.immune) {
 			
@@ -71,7 +91,7 @@ public class Player extends Entity{
 			
 			GameManager.particles.add(new DamageNumber(damage, this.pos));
 			
-			this.health -= damage;
+			//this.health -= damage;
 			
 		}
 	}
@@ -80,6 +100,8 @@ public class Player extends Entity{
 	public void tick(Map map) {
 		
 		this.attackTimer --;
+		
+		this.health = Math.min(this.health, this.maxHealth);
 		
 		if(this.jump) {
 			this.gravity = 0.01;
@@ -135,9 +157,10 @@ public class Player extends Entity{
 		ma.draw(g, pos);
 		
 		this.drawHitboxes(g);
+		this.drawSprite(Player.animationIdle.get(0), g);
 	}
 	
-	public void mousePressed(MouseEvent arg0) {
+	public void mousePressed(MouseEvent arg0) {	
 		this.mouseAttack = true;
 		//this.attack(new Point(mouse.x, mouse.y));
 	}

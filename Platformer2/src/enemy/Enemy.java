@@ -1,13 +1,16 @@
-package entities;
+package enemy;
 
 import java.awt.Color;
 import java.awt.Graphics;
 
-import game.GameManager;
+import entities.Entity;
+import entities.Hitbox;
 import game.Map;
 import main.MainPanel;
 import melee.MeleeAttack;
 import particles.DamageNumber;
+import state.GameManager;
+import util.GraphicsTools;
 import util.Vector;
 
 public abstract class Enemy extends Entity{
@@ -26,6 +29,22 @@ public abstract class Enemy extends Entity{
 	
 	public double healthBarWidth = 3;
 	public double healthBarHeight = 0.3;
+	
+	public static Enemy getEnemy(int type, Vector pos) {
+		switch(type) {
+		case SLIME:
+			return new Slime(pos);
+			
+		case GOBLIN:
+			return new Goblin(pos);
+		}
+		
+		return null;
+	}
+	
+	public static void loadTextures() {
+		Slime.animationIdle = GraphicsTools.loadAnimation("/Textures/Slime/slime_idle.png", 13, 13);
+	}
 
 	//returns true if the attack hit it
 	public boolean hit(MeleeAttack ma, Vector playerPos, int damage) {

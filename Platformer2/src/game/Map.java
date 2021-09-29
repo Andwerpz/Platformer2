@@ -6,9 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Transparency;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,9 +18,12 @@ import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 
-import entities.Enemy;
-import entities.Slime;
+import decorations.Decoration;
+import decorations.Tree;
+import enemy.Enemy;
+import enemy.Slime;
 import main.MainPanel;
+import state.GameManager;
 import util.GraphicsTools;
 import util.Point;
 import util.Vector;
@@ -33,18 +34,21 @@ public class Map {
 	
 	public BufferedImage[][] mapTileTexture;
 	
-	public ArrayList<ArrayList<int[]>> enemyWaves;	//wave number, enemy number, {enemy type, row, col}
+	public ArrayList<ArrayList<double[]>> enemyWaves;	//wave number, enemy number, {enemy type, row, col}
 	public int selectedWave = 0;
 	
-	public HashMap<Integer, Integer> tileTextureMap;
+	public ArrayList<double[]> decorations;	//id and location info for decorations within map
+	
+	public static HashMap<Integer, Integer> tileTextureMap;
+	public static ArrayList<BufferedImage> tileTextures;
+	public static ArrayList<BufferedImage> cornerTextures;	//corners must be at the bottom left corner
+	public static ArrayList<BufferedImage> sideTextures;	//sides must be on the bottom
 	
 	public BufferedImage errorTileTexture;
 	public BufferedImage errorCornerTexture;
 	public BufferedImage errorSideTexture;
 	
-	public ArrayList<BufferedImage> tileTextures;
-	public ArrayList<BufferedImage> cornerTextures;	//corners must be at the bottom left corner
-	public ArrayList<BufferedImage> sideTextures;	//sides must be on the bottom
+	public Vector playerSpawn;
 	
 	public boolean drawTileGrid = false;
 	public boolean editing = false;
@@ -53,14 +57,23 @@ public class Map {
 		map = new int[][] {{0}};
 		mapTileTexture = new BufferedImage[][] {{null}};
 		
-		this.enemyWaves = new ArrayList<ArrayList<int[]>>();
-		this.enemyWaves.add(new ArrayList<int[]>());
+		this.enemyWaves = new ArrayList<ArrayList<double[]>>();
+		this.enemyWaves.add(new ArrayList<double[]>());
 		
-		this.tileTextures = new ArrayList<BufferedImage>();
-		this.cornerTextures = new ArrayList<BufferedImage>();
-		this.sideTextures = new ArrayList<BufferedImage>();
+		this.decorations = new ArrayList<double[]>();
 		
-		this.tileTextureMap = new HashMap<Integer, Integer>();
+		this.playerSpawn = new Vector(0, 0);
+		
+	}
+	
+	
+	//called on game startup
+	public static void loadTileTextures() {
+		tileTextures = new ArrayList<BufferedImage>();
+		cornerTextures = new ArrayList<BufferedImage>();
+		sideTextures = new ArrayList<BufferedImage>();
+		
+		tileTextureMap = new HashMap<Integer, Integer>();
 		
 		//loading all textures
 		BufferedReader fin;
@@ -70,7 +83,7 @@ public class Map {
 		
 		try {
 			
-			is = this.getClass().getResourceAsStream("/texturemap.txt");
+			is = Map.class.getResourceAsStream("/texturemap.txt");
 			
 			fin = new BufferedReader(new InputStreamReader(is));
 			
@@ -82,11 +95,11 @@ public class Map {
 				if(st.hasMoreTokens()) {
 					int mapNum = Integer.parseInt(st.nextToken());
 					
-					this.tileTextureMap.put(mapNum, this.tileTextures.size());
+					tileTextureMap.put(mapNum, tileTextures.size());
 					
-					this.tileTextures.add(this.readTextureFromFile(st.nextToken()));
-					this.sideTextures.add(this.readTextureFromFile(st.nextToken()));
-					this.cornerTextures.add(this.readTextureFromFile(st.nextToken()));
+					tileTextures.add(GraphicsTools.loadImage("/Textures/Tiles/" + st.nextToken()));
+					sideTextures.add(GraphicsTools.loadImage("/Textures/Tiles/" + st.nextToken()));
+					cornerTextures.add(GraphicsTools.loadImage("/Textures/Tiles/" + st.nextToken()));
 				}
 				
 				
@@ -97,10 +110,6 @@ public class Map {
 		} catch(IOException e) {
 			
 		}
-		
-//		System.out.println(this.textureMap);
-//		System.out.println(this.tileTextures.size());
-//		System.out.println(this.sideTextures.size());
 	}
 	
 	//pre-bakes the lighting for each tile before we call the render function.
@@ -109,10 +118,9 @@ public class Map {
 		int width = this.map[0].length;
 		int height = this.map.length;
 		
-		int[][] grid = new int[width][height];
+		int[][] grid = new int[height][width];
 		
-		Queue<int[]> q = new ArrayDeque<int[]>();
-		Queue<Integer> dist = new ArrayDeque<Integer>();
+		Queue<int[]> q = new ArrayDeque<int[]>();		
 		
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
@@ -186,8 +194,8 @@ public class Map {
 		//per tile loading. So we can easily edit textures. Useful for adding or removing blocks
 		
 		int tileType = map[i][j];
-		if(this.tileTextureMap.containsKey(tileType)) {
-			BufferedImage img = this.tileTextures.get(tileTextureMap.get(tileType));
+		if(Map.tileTextureMap.containsKey(tileType)) {
+			BufferedImage img = Map.tileTextures.get(tileTextureMap.get(tileType));
 			this.mapTileTexture[i][j] = GraphicsTools.copyImage(img);
 		}
 		else {
@@ -197,37 +205,37 @@ public class Map {
 			
 			//sides
 			if(i + 1 < map.length && map[i + 1][j] != 0) {
-				img = GraphicsTools.combineImages(this.sideTextures.get(tileTextureMap.get(map[i + 1][j])), img);
+				img = GraphicsTools.combineImages(Map.sideTextures.get(tileTextureMap.get(map[i + 1][j])), img);
 				change = true;
 			}
 			if(i - 1 >= 0 && map[i - 1][j] != 0) {
-				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(this.sideTextures.get(tileTextureMap.get(map[i - 1][j])), 180), img);
+				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.sideTextures.get(tileTextureMap.get(map[i - 1][j])), 180), img);
 				change = true;
 			}
 			if(j + 1 < map[0].length && map[i][j + 1] != 0) {
-				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(this.sideTextures.get(tileTextureMap.get(map[i][j + 1])), 270), img);
+				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.sideTextures.get(tileTextureMap.get(map[i][j + 1])), 270), img);
 				change = true;
 			}
 			if(j - 1 >= 0 && map[i][j - 1] != 0) {
-				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(this.sideTextures.get(tileTextureMap.get(map[i][j - 1])), 90), img);
+				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.sideTextures.get(tileTextureMap.get(map[i][j - 1])), 90), img);
 				change = true;
 			}
 			
 			//corners
 			if(i + 1 < map.length && j + 1 < map[0].length && map[i + 1][j + 1] != 0 && map[i + 1][j] == map[i][j + 1]) {
-				img = GraphicsTools.combineImages(this.cornerTextures.get(tileTextureMap.get(map[i + 1][j + 1])), img);
+				img = GraphicsTools.combineImages(Map.cornerTextures.get(tileTextureMap.get(map[i + 1][j + 1])), img);
 				change = true;
 			}
 			if(i - 1 >= 0 && j + 1 < map[0].length && map[i - 1][j + 1] != 0 && map[i - 1][j] == map[i][j + 1]) {
-				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(this.cornerTextures.get(tileTextureMap.get(map[i - 1][j + 1])), 270), img);
+				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.cornerTextures.get(tileTextureMap.get(map[i - 1][j + 1])), 270), img);
 				change = true;
 			}
 			if(i + 1 < map.length && j - 1 >= 0 && map[i + 1][j - 1] != 0 && map[i + 1][j] == map[i][j - 1]) {
-				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(this.cornerTextures.get(tileTextureMap.get(map[i + 1][j - 1])), 90), img);
+				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.cornerTextures.get(tileTextureMap.get(map[i + 1][j - 1])), 90), img);
 				change = true;
 			}
 			if(i - 1 >= 0 && j - 1 >= 0 && map[i - 1][j - 1] != 0 && map[i - 1][j] == map[i][j - 1]) {
-				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(this.cornerTextures.get(tileTextureMap.get(map[i - 1][j - 1])), 180), img);
+				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.cornerTextures.get(tileTextureMap.get(map[i - 1][j - 1])), 180), img);
 				change = true;
 			}
 			
@@ -245,7 +253,7 @@ public class Map {
 		BufferedReader fin;
 		InputStream is;
 		
-		this.enemyWaves = new ArrayList<ArrayList<int[]>>();
+		this.enemyWaves = new ArrayList<ArrayList<double[]>>();
 		
 		System.out.println("LOADING MAP: " + filename);
 		
@@ -255,6 +263,12 @@ public class Map {
 			fin = new BufferedReader(new InputStreamReader(is));
 			
 			StringTokenizer st = new StringTokenizer(fin.readLine());
+			double spawnY = Double.parseDouble(st.nextToken());	//row, col
+			double spawnX = Double.parseDouble(st.nextToken());
+			
+			this.playerSpawn = new Vector(spawnX, spawnY);
+			
+			st = new StringTokenizer(fin.readLine());
 			int width = Integer.parseInt(st.nextToken());
 			int height = Integer.parseInt(st.nextToken());
 			
@@ -274,15 +288,24 @@ public class Map {
 				st = new StringTokenizer(line);
 				if(st.hasMoreTokens()) {
 					String type = st.nextToken();
+					
+					//this is currently pretty jank rn, but it works. Fix later
 					if(type.equals("wave")) {
-						this.enemyWaves.add(new ArrayList<int[]>());
+						this.enemyWaves.add(new ArrayList<double[]>());
+					}
+					else if(type.equals("decoration")) {
+						double decorationType = Double.parseDouble(st.nextToken());
+						double row = Double.parseDouble(st.nextToken());
+						double col = Double.parseDouble(st.nextToken());
+						
+						this.decorations.add(new double[] {decorationType, row, col});
 					}
 					else {
 						
-						int row = Integer.parseInt(st.nextToken());
-						int col = Integer.parseInt(st.nextToken());
+						double row = Double.parseDouble(st.nextToken());
+						double col = Double.parseDouble(st.nextToken());
 						
-						this.enemyWaves.get(this.enemyWaves.size() - 1).add(new int[] {Integer.parseInt(type), row, col});
+						this.enemyWaves.get(this.enemyWaves.size() - 1).add(new double[] {Double.parseDouble(type), row, col});
 						
 					}
 				}
@@ -321,14 +344,15 @@ public class Map {
 		
 	}
 	
-	public void spawnNextWave() {
+	//returns true if all waves are cleared
+	public boolean spawnNextWave() {
 		if(this.selectedWave >= this.enemyWaves.size()) {
-			return;
+			return true;
 		}
-		for(int[] i : enemyWaves.get(this.selectedWave)) {
-			int type = i[0];
-			int x = i[2];
-			int y = i[1];
+		for(double[] i : enemyWaves.get(this.selectedWave)) {
+			int type = (int) i[0];
+			double x = i[2];
+			double y = i[1];
 			
 			switch(type) {
 			case Enemy.SLIME:
@@ -337,6 +361,19 @@ public class Map {
 			}
 		}
 		this.selectedWave ++;
+		return false;
+	}
+	
+	public ArrayList<Decoration> getDecorations() {
+		ArrayList<Decoration> ans = new ArrayList<Decoration>();
+		for(double[] i : decorations) {
+			int type = (int) i[0];
+			double x = i[2];
+			double y = i[1];
+			
+			ans.add(Decoration.getDecoration(type, new Vector(x, y)));
+		}
+		return ans;
 	}
 	
 	public void draw(Graphics g) {
@@ -372,6 +409,15 @@ public class Map {
 	
 	//the version of draw that you use when you want to edit
 	public void drawEditing(Graphics g) {
+		
+		for(double[] i : decorations) {
+			int type = (int) i[0];
+			double x = i[2];
+			double y = i[1];
+			
+			Decoration.getDecoration(type, new Vector(x, y)).draw(g);
+		}
+		
 		int minX = (int) (GameManager.cameraOffset.x / GameManager.tileSize - (MainPanel.WIDTH / 2) / GameManager.tileSize);
 		int minY = (int) (GameManager.cameraOffset.y / GameManager.tileSize - (MainPanel.HEIGHT / 2) / GameManager.tileSize);
 		
@@ -400,29 +446,18 @@ public class Map {
 		}
 		
 		if(this.enemyWaves.size() != 0) {
-			for(int[] i : this.enemyWaves.get(selectedWave)) {
+			for(double[] i : this.enemyWaves.get(selectedWave)) {
 				
-				int enemyType = i[0];
+				int enemyType = (int) i[0];
 				double x = i[2];
 				double y = i[1];
 				
-				switch(enemyType) {
-				
-				case Enemy.SLIME:
-					Slime s = new Slime(new Vector(x, y));
-					s.draw(g);
-					break;
-					
-				case Enemy.GOBLIN:
-					break;
-					
-				case 0:
-					break;
-				
-				}
+				Enemy.getEnemy(enemyType, new Vector(x, y)).draw(g);
 				
 			}
 		}
+		
+		
 		
 		
 	}

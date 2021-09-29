@@ -6,8 +6,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import entities.Hitbox;
-import game.GameManager;
 import main.MainPanel;
+import state.GameManager;
 import util.GraphicsTools;
 import util.MathTools;
 import util.Point;

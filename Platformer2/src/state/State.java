@@ -6,14 +6,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
 public abstract class State {
-
-	protected StateManager gsm;
 	
-	public State(StateManager gsm) {
-		this.gsm = gsm;
-		
-		init();
-	}
+	public State() {}
 	
 	public abstract void init();
 	public abstract void tick(Point mouse2);

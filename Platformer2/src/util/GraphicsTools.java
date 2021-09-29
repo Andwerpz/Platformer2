@@ -20,9 +20,9 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import entities.Slime;
-import game.GameManager;
+import enemy.Slime;
 import main.MainPanel;
+import state.GameManager;
 
 public class GraphicsTools {
 
@@ -122,7 +122,7 @@ public class GraphicsTools {
 		
 		try {
 			
-			is = BufferedImage.class.getResourceAsStream(filepath);
+			is = GraphicsTools.class.getResourceAsStream(filepath);
 			img = ImageIO.read(is);
 			
 			System.out.println(" SUCCESS");

@@ -18,8 +18,8 @@ import java.io.PrintWriter;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import state.GameManager;
 
-import state.StateManager;
 
 public class MainPanel extends JPanel implements Runnable, KeyListener, MouseListener, MouseWheelListener{
 	
@@ -36,7 +36,7 @@ public class MainPanel extends JPanel implements Runnable, KeyListener, MouseLis
 	
 	public static PrintWriter fout;
 	
-	private StateManager gsm;
+	private GameManager gm;
 	//private Images images;
 
 	public MainPanel() {
@@ -74,7 +74,7 @@ public class MainPanel extends JPanel implements Runnable, KeyListener, MouseLis
 		
 		long start, elapsed, wait;
 		
-		gsm = new StateManager();
+		gm = new GameManager();
 		
 		while(isRunning) {
 			
@@ -109,7 +109,7 @@ public class MainPanel extends JPanel implements Runnable, KeyListener, MouseLis
 		
 		mouse.setLocation(mouse.x - (mouse2.x - mouse.x), mouse.y - (mouse2.y - mouse.y));
 		
-		gsm.tick(mouse);
+		gm.tick(mouse);
 		
 	}
 	
@@ -119,53 +119,53 @@ public class MainPanel extends JPanel implements Runnable, KeyListener, MouseLis
 		
 		g.clearRect(0, 0, WIDTH * 2, HEIGHT * 2);
 		
-		gsm.draw(g);
+		gm.draw(g, this.mouse);
 		
 	}
 	
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		gsm.mouseClicked(arg0);
+		gm.mouseClicked(arg0);
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		gsm.mouseEntered(arg0);
+		gm.mouseEntered(arg0);
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		gsm.mouseExited(arg0);
+		gm.mouseExited(arg0);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		gsm.mousePressed(arg0);
+		gm.mousePressed(arg0);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		gsm.mouseReleased(arg0);
+		gm.mouseReleased(arg0);
 	}
 
 	@Override
 	public void keyPressed(KeyEvent arg0) {
-		gsm.keyPressed(arg0.getKeyCode());
+		gm.keyPressed(arg0.getKeyCode());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		gsm.keyReleased(arg0.getKeyCode());
+		gm.keyReleased(arg0.getKeyCode());
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		gsm.keyTyped(arg0.getKeyCode());
+		gm.keyTyped(arg0.getKeyCode());
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
-		gsm.mouseWheelMoved(arg0);
+		gm.mouseWheelMoved(arg0);
 	}
 
 	
