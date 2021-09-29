@@ -91,7 +91,7 @@ public class Player extends Entity{
 			
 			GameManager.particles.add(new DamageNumber(damage, this.pos));
 			
-			//this.health -= damage;
+			this.health -= damage;
 			
 		}
 	}
