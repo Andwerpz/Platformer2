@@ -12,11 +12,13 @@ import java.util.ArrayList;
 
 import decorations.Decoration;
 import enemy.Enemy;
+import entities.Hitbox;
 import entities.Player;
 import item.Coin;
 import item.Item;
 import main.MainPanel;
 import particles.Particle;
+import projectiles.Projectile;
 import state.GameManager;
 import state.HubState;
 import util.GraphicsTools;
@@ -47,6 +49,7 @@ public Map map;
 		GameManager.particles = new ArrayList<Particle>();
 		GameManager.items = new ArrayList<Item>();
 		GameManager.decorations = new ArrayList<Decoration>();
+		GameManager.projectiles = new ArrayList<Projectile>();
 		
 		GameManager.decorations = this.map.getDecorations();
 		
@@ -83,6 +86,8 @@ public Map map;
 			//enable this if you want the camera to lock onto the player
 			//GameManager.cameraOffset = new Vector(new Point(0, 0), playerPos);	//vector from player location to center of screen
 			
+			
+			
 			//move, and get rid of dead enemies
 			for(int i = 0; i < GameManager.enemies.size(); i++) {
 				Enemy e = GameManager.enemies.get(i);
@@ -99,6 +104,26 @@ public Map map;
 				e.tick(map);
 			}
 			
+			//move and get rid of dead projectiles
+			//also do collision checks between projectiles and enemies
+			for(int i = 0; i < GameManager.projectiles.size(); i++) {
+				Projectile p = GameManager.projectiles.get(i);
+				if(p.timeLeft < 0) {
+					p.hit();//might change this function up to say something like "onRemove". The functionality is going to be the same though
+					GameManager.projectiles.remove(i);
+					i--;
+					continue;
+				}
+				p.tick(map);
+				for(int j = 0; j < GameManager.enemies.size(); j++) {
+					Enemy e = GameManager.enemies.get(j);
+					if(e.hit(p.envHitbox, p.pos, p.vel, p.damage)) {
+						p.hit();
+						break;
+					}
+				}
+			}
+			
 			//move, and get rid of coins
 			for(int i = 0; i < GameManager.items.size(); i++) {
 				Item c = GameManager.items.get(i);
@@ -106,6 +131,7 @@ public Map map;
 					c.onPickup();
 					GameManager.items.remove(i);
 					i --;
+					continue;
 				}
 				
 				c.tick(map);
@@ -140,9 +166,13 @@ public Map map;
 			if(GameManager.player.ma.attacking) {
 				for(Enemy e : GameManager.enemies) {
 					
-					if(e.hit(GameManager.player.ma, GameManager.player.pos, (int) (Math.random() * 9) + 1)) {
-						hit = true;
+					for(Hitbox h : GameManager.player.ma.activeHitboxes) {
+						if(e.hit(h, GameManager.player.pos, GameManager.player.ma.activeAttackVector, (int) (Math.random() * 9) + 1)) {
+							hit = true;
+							break;
+						}
 					}
+					
 	
 				}
 			}
@@ -182,6 +212,10 @@ public Map map;
 		GameManager.player.draw(g);
 		
 		for(Particle p : GameManager.particles) {
+			p.draw(g);
+		}
+		
+		for(Projectile p : GameManager.projectiles) {
 			p.draw(g);
 		}
 		

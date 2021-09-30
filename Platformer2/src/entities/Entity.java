@@ -24,7 +24,9 @@ public abstract class Entity {
 	
 	public double acceleration = 0.1;	//units per frame. For now, units are map grid cells
 	public double jumpVel = 0.35;	//amount of impulse when the player jumps
-	public double gravity = 0.01;		//gravitational acceleration
+	
+	public boolean gravity = true;	//is this entity affected by gravity?
+	public double gravityAcceleration = 0.01;		//gravitational acceleration
 	
 	public boolean onGround = false;
 	
@@ -32,9 +34,11 @@ public abstract class Entity {
 	public double maxVerticalSpeed = 0.35;	//it's what it says
 	
 	public double groundFriction = 0.25;	//how much horizontal speed is leaked between frames.
-	public double airFriction = 0.1;
 	
+	public double airFriction = 0.1;	//how much horizontal speed is leaked between frames in the air
 	public boolean frictionInAir = true;	//does friction affect you while in the air?
+	
+	public boolean envCollision = false;	//did this entity collide with the environment?	used for projectiles
 	
 	public Entity() {
 		this.vel = new Vector(0, 0);
@@ -82,6 +86,8 @@ public abstract class Entity {
 	// given the list of hitboxes and the velocity vector, find out how far the entity will move, first considering horizontal movement, then vertical movement.
 	public void move(Map map) {
 		
+		this.envCollision = false;
+		
 		this.outOfBounds(map);
 		
 		//ground check
@@ -95,6 +101,7 @@ public abstract class Entity {
 			//System.out.println(tileX + " " + tileY + " " + map.map[tileY][tileX]);
 			if(map.map[tileY][tileX] != 0) {
 				this.onGround = true;
+				this.envCollision = true;
 				this.vel.y = 0;
 				this.pos.y += (((double) tileY - cushion) - (p.y + this.pos.y));
 				//System.out.println(((double) tileY - cushion) - (p.y + this.pos.y));
@@ -105,8 +112,8 @@ public abstract class Entity {
 		//System.out.println((0.5d + this.pos.y) + " " +  this.onGround);
 		
 		//movement: friction, gravity
-		if(!this.onGround) {
-			this.vel.y += this.gravity;
+		if(!this.onGround && this.gravity) {
+			this.vel.y += this.gravityAcceleration;
 		}
 		
 		if(this.onGround){
@@ -160,6 +167,7 @@ public abstract class Entity {
 			
 			if(collision) {
 				//System.out.println("collsiion");
+				this.envCollision = true;
 				this.pos.x += (collisionX - lowerLeft.x);
 				this.vel.x = 0;
 			}
@@ -202,6 +210,7 @@ public abstract class Entity {
 			}
 			
 			if(collision) {
+				this.envCollision = true;
 				this.pos.x += (collisionX - lowerRight.x);
 				this.vel.x = 0;
 			}
@@ -244,6 +253,7 @@ public abstract class Entity {
 			}
 			
 			if(collision) {
+				this.envCollision = true;
 				this.pos.y += (collisionY - lowerRight.y);
 				this.vel.y = 0;
 			}
@@ -285,6 +295,7 @@ public abstract class Entity {
 			}
 			
 			if(collision) {
+				this.envCollision = true;
 				this.pos.y += (collisionY - upperRight.y);
 				this.vel.y = 0;
 			}

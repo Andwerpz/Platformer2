@@ -26,8 +26,10 @@ public abstract class Enemy extends Entity{
 	
 	public int health;
 	public int maxHealth;
-	
+
+	public double maxHealthBarWidth = 3;
 	public double healthBarWidth = 3;
+	
 	public double healthBarHeight = 0.3;
 	
 	public static Enemy getEnemy(int type, Vector pos) {
@@ -47,29 +49,34 @@ public abstract class Enemy extends Entity{
 	}
 
 	//returns true if the attack hit it
-	public boolean hit(MeleeAttack ma, Vector playerPos, int damage) {
+	public boolean hit(Hitbox h, Vector playerPos, Vector attackVector, int damage) {
 		boolean attackHit = false;
-		for(Hitbox h : ma.activeHitboxes) {
-			if(this.envHitbox.collision(this.pos, h, playerPos)) {
-				this.vel.addVector(new Vector(ma.activeAttackVector.x, -0.01));
-				this.pos.y -= this.cushion * 2;
-				attackHit = true;
-				
-				this.health -= damage;
-				
-				//add a new damage number particle
-				GameManager.particles.add(new DamageNumber(damage, this.pos));
-				
-				//sets up immune frames
-				//maybe enemies don't need immunity frames.
-				
-				break;
-			}
+		
+		if(this.envHitbox.collision(this.pos, h, playerPos)) {
+			
+			double xImpulse = attackVector.x > 0? 0.2 : -0.2;
+			
+			this.vel.addVector(new Vector(xImpulse, -0.01));
+			this.pos.y -= this.cushion * 2;
+			attackHit = true;
+			
+			this.health -= damage;
+			
+			//add a new damage number particle
+			GameManager.particles.add(new DamageNumber(damage, this.pos));
+			
+			//sets up immune frames
+			//maybe enemies don't need immunity frames.
+			
 		}
+		
 		return attackHit;
 	}
 	
 	public void drawHealthBar(Graphics g) {
+		
+		this.healthBarWidth += (((double) this.health / (double) this.maxHealth) * this.maxHealthBarWidth - this.healthBarWidth) * 0.1; 
+		
 		int healthBarWidth = (int) (this.healthBarWidth * GameManager.tileSize);
 		int healthBarHeight = (int) (this.healthBarHeight * GameManager.tileSize);
 		
@@ -97,9 +104,9 @@ public abstract class Enemy extends Entity{
 		
 		g.setColor(new Color(red, green, 0));
 		
-		g.fillRect((int) ((this.pos.x) * GameManager.tileSize - healthBarWidth / 2 - GameManager.cameraOffset.x + MainPanel.WIDTH / 2), 
+		g.fillRect((int) ((this.pos.x) * GameManager.tileSize - (this.maxHealthBarWidth * GameManager.tileSize) / 2 - GameManager.cameraOffset.x + MainPanel.WIDTH / 2), 
 				(int) ((this.pos.y - this.height / 2 - 0.5) * GameManager.tileSize - healthBarHeight - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2), 
-				(int) ((double) healthBarWidth * ((double) this.health / (double) this.maxHealth)), healthBarHeight);
+				healthBarWidth, healthBarHeight);
 		
 //		g.drawRect((int) ((this.pos.x) * GameManager.tileSize - healthBarWidth / 2 - GameManager.cameraOffset.x + MainPanel.WIDTH / 2), 
 //				(int) ((this.pos.y - this.height / 2 - 0.5) * GameManager.tileSize - healthBarHeight - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2), 

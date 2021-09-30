@@ -24,6 +24,7 @@ import main.MainPanel;
 import melee.MeleeAttack;
 import particles.DamageNumber;
 import particles.Particle;
+import projectiles.Projectile;
 import util.GraphicsTools;
 import util.Point;
 import util.Vector;
@@ -39,6 +40,7 @@ public class GameManager {
 	public static ArrayList<Item> items;
 	public static ArrayList<Decoration> decorations;	//have to figure out a better way of ticking these.
 	//want to support animation.
+	public static ArrayList<Projectile> projectiles;	//these do damage to enemies
 	
 	public static Vector cameraOffset = new Vector(0, 0);	//or alternatively, you could just use inverse of the player position
 	
@@ -72,6 +74,7 @@ public class GameManager {
 		GameManager.particles = new ArrayList<Particle>();
 		GameManager.items = new ArrayList<Item>();
 		GameManager.decorations = new ArrayList<Decoration>();
+		GameManager.projectiles = new ArrayList<Projectile>();
 			
 		GameManager.cameraOffset = new Vector(0, 0);
 		
@@ -96,6 +99,7 @@ public class GameManager {
 		
 		GameManager.curState.draw(g, mouse);
 		
+		//transitioning code
 		if(transitioning) {
 			g.setColor(Color.BLACK);
 			//System.out.println(transitioning + " " + transitionTimeLeft);

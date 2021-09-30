@@ -12,6 +12,8 @@ import main.Main;
 import main.MainPanel;
 import melee.MeleeAttack;
 import particles.DamageNumber;
+import projectiles.Bullet;
+import projectiles.SmallBullet;
 import state.GameManager;
 import util.GraphicsTools;
 import util.Point;
@@ -61,7 +63,7 @@ public class Player extends Entity{
 		
 		this.immuneTimeLeft = 0;
 		
-		this.gravity = 0.03;
+		this.gravityAcceleration = 0.03;
 		this.jumpVel = 0.2;
 		
 		this.health = maxHealth;
@@ -104,10 +106,10 @@ public class Player extends Entity{
 		this.health = Math.min(this.health, this.maxHealth);
 		
 		if(this.jump) {
-			this.gravity = 0.01;
+			this.gravityAcceleration = 0.01;
 		}
 		else {
-			this.gravity = 0.025;
+			this.gravityAcceleration = 0.025;
 		}
 		
 		if(this.immune) {
@@ -143,9 +145,11 @@ public class Player extends Entity{
 				this.ma.Slash(pos, new Point(mouse.x, mouse.y));
 			}
 			else if(this.leftAttack) {
+				GameManager.projectiles.add(new Bullet(this.pos, new Vector(-0.2, 0), 1, 1, 5));
 				this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
 			}
 			else {
+				GameManager.projectiles.add(new Bullet(this.pos, new Vector(0.2, 0), 1, 1, 5));
 				this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
 			}
 			
