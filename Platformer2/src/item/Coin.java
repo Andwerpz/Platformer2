@@ -30,6 +30,8 @@ public class Coin extends Item {
 		this.frictionInAir = false;
 		
 		this.animationFrame = 0;
+		
+		this.autoPickup = true;
 	}
 
 	@Override

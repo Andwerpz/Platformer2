@@ -22,6 +22,8 @@ public class Apple extends Item {
 		this.width = 1;
 		this.height = 1;
 		this.envHitbox = new Hitbox(width, height);
+		
+		this.autoPickup = true;
 	}
 
 	@Override

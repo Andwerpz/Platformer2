@@ -24,6 +24,9 @@ public abstract class Projectile extends Entity{
 		
 		this.maxHorizontalSpeed = 1;
 		this.maxVerticalSpeed = 1;
+		
+		this.width = width;
+		this.height = height;
 	}
 	
 	public abstract void tick(Map map);

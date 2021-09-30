@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import game.Map;
+import item.Item;
 import main.Main;
 import main.MainPanel;
 import melee.MeleeAttack;
@@ -19,6 +20,7 @@ import util.GraphicsTools;
 import util.Point;
 import util.Vector;
 import weapon.AirburstShotgun;
+import weapon.OK47;
 import weapon.Weapon;
 
 public class Player extends Entity{
@@ -32,6 +34,9 @@ public class Player extends Entity{
 	public int health;
 	public int maxHealth = 100;
 	
+	public int stamina;
+	public int maxStamina = 100;
+	public int staminaRegenDelay = 30;
 	
 	public boolean left = false;
 	public boolean right = false;
@@ -42,14 +47,15 @@ public class Player extends Entity{
 	public int immuneTime = 30;
 	
 	public MeleeAttack ma;
-	public int attackCooldown = 20;
-	public int attackTimer;
+	public int timeSinceLastAttack;
 	
 	public boolean mouseAttack = false;
 	public boolean leftAttack = false;
 	public boolean rightAttack = false;
 	
-	public Weapon equippedWeapon = new AirburstShotgun(new Vector(0, 0));
+	public boolean pickUpWeapon = false;
+	
+	public Weapon equippedWeapon = new OK47(new Vector(0, 0));
 	
 	public java.awt.Point mouse = new java.awt.Point(0, 0);
 	
@@ -69,8 +75,9 @@ public class Player extends Entity{
 		this.jumpVel = 0.2;
 		
 		this.health = maxHealth;
+		this.stamina = maxStamina;
 		
-		this.attackTimer = 0;
+		this.timeSinceLastAttack = 0;
 		
 		this.baseHealthUpgrades = 0;
 	}
@@ -103,7 +110,11 @@ public class Player extends Entity{
 	@Override
 	public void tick(Map map) {
 		
-		this.attackTimer --;
+		this.timeSinceLastAttack ++;
+		
+		if(this.stamina < this.maxStamina && this.timeSinceLastAttack >= this.staminaRegenDelay) {
+			this.stamina ++;
+		}
 		
 		this.health = Math.min(this.health, this.maxHealth);
 		
@@ -141,27 +152,58 @@ public class Player extends Entity{
 	}
 	
 	public void attack() {
-		if(this.attackTimer <= 0 && (this.mouseAttack || this.leftAttack || this.rightAttack)) {
-			this.attackTimer = this.attackCooldown;
-			if(this.mouseAttack) {
+		//equipped a gun
+		if(this.equippedWeapon != null) {
+			if(this.stamina >= this.equippedWeapon.attackStaminaCost && (this.mouseAttack || this.leftAttack || this.rightAttack) && this.timeSinceLastAttack >= this.equippedWeapon.attackDelay) {
+				this.timeSinceLastAttack = 0;
+				this.stamina -= this.equippedWeapon.attackStaminaCost;
+				if(this.mouseAttack) {
+					
+					Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
+					
+					Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));
+					
+					this.equippedWeapon.attack(this.pos, attackVector);
+					//this.ma.Slash(pos, new Point(mouse.x, mouse.y));
+				}
+				else if(this.leftAttack) {
+					this.equippedWeapon.attack(this.pos, new Vector(-1, 0));
+					//this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
+				}
+				else {
+					this.equippedWeapon.attack(this.pos, new Vector(1, 0));
+					//this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
+				}
 				
-				Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
-				
-				Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));
-				
-				this.equippedWeapon.attack(this.pos, attackVector);
-				this.ma.Slash(pos, new Point(mouse.x, mouse.y));
 			}
-			else if(this.leftAttack) {
-				this.equippedWeapon.attack(this.pos, new Vector(-1, 0));
-				this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
-			}
-			else {
-				this.equippedWeapon.attack(this.pos, new Vector(1, 0));
-				this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
-			}
-			
 		}
+		//do a melee attack
+		else {
+			if(this.stamina >= 10 && (this.mouseAttack || this.leftAttack || this.rightAttack) && this.timeSinceLastAttack >= 30) {
+				this.timeSinceLastAttack = 0;
+				this.stamina -= 10;
+				if(this.mouseAttack) {
+					
+					Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
+					
+					Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));
+					
+					//this.equippedWeapon.attack(this.pos, attackVector);
+					this.ma.Slash(pos, new Point(mouse.x, mouse.y));
+				}
+				else if(this.leftAttack) {
+					//this.equippedWeapon.attack(this.pos, new Vector(-1, 0));
+					this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
+				}
+				else {
+					//this.equippedWeapon.attack(this.pos, new Vector(1, 0));
+					this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
+				}
+				
+			}
+		}
+		
+		
 	}
 	
 	public void draw(Graphics g) {
@@ -170,6 +212,33 @@ public class Player extends Entity{
 		
 		this.drawHitboxes(g);
 		this.drawSprite(Player.animationIdle.get(0), g);
+		
+		//draw the currently equipped weapon
+		BufferedImage wepImg = AirburstShotgun.animation.get(0);
+		Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
+		
+		Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));
+		attackVector.setMagnitude(1.5);
+		
+		double rads = Math.atan2(attackVector.y, attackVector.x);
+		
+		//System.out.println(rads % (Math.PI * 2));
+		if(rads < -Math.PI / 2d || rads > Math.PI / 2d) {
+			wepImg = GraphicsTools.flipImageVertical(wepImg);
+		}
+		
+		BufferedImage rotatedImg = GraphicsTools.rotateImageByDegrees(wepImg, Math.toDegrees((rads)));
+		
+		double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
+		double w = this.equippedWeapon.width;
+	    double h = this.equippedWeapon.height;
+	    double newWidth = w * cos + h * sin;
+	    double newHeight = h * cos + w * sin;
+		
+		this.equippedWeapon.pos = new Vector(this.pos);
+		this.equippedWeapon.pos.addVector(attackVector);
+		
+		this.equippedWeapon.drawSprite(rotatedImg, g, newWidth, newHeight);
 	}
 	
 	public void mousePressed(MouseEvent arg0) {	
@@ -196,6 +265,19 @@ public class Player extends Entity{
 		}
 		else if(k == KeyEvent.VK_RIGHT) {
 			rightAttack = true;
+		}
+		else if(k == KeyEvent.VK_E) {
+			for(int i = 0; i < GameManager.items.size(); i++) {
+				Item item = GameManager.items.get(i);
+				if(item instanceof Weapon && item.collision(this)) {
+					if(this.equippedWeapon != null) {
+						this.equippedWeapon.onDrop(this.pos);
+					}
+					GameManager.items.remove(i);
+					this.equippedWeapon = (Weapon) item;
+					break;
+				}
+			}
 		}
 	}
 	

@@ -14,6 +14,7 @@ import particles.DamageNumber;
 import state.GameManager;
 import util.GraphicsTools;
 import util.Vector;
+import weapon.AirburstShotgun;
 
 public class Tree extends Decoration {
 	
@@ -50,7 +51,7 @@ public class Tree extends Decoration {
 				double x = (Math.random() * this.width) - this.width / 2d + this.pos.x;
 				double y = (Math.random() * this.height) - this.height / 2d + this.pos.y; 
 				this.droppedApple = true;
-				GameManager.items.add(new Apple(new Vector(x, y)));
+				GameManager.items.add(new AirburstShotgun(new Vector(x, y)));
 			}
 			else if(!this.droppedApple) {
 				for(int i = 0; i < 10; i++) {

@@ -14,6 +14,7 @@ import decorations.Decoration;
 import enemy.Enemy;
 import entities.Hitbox;
 import entities.Player;
+import item.Apple;
 import item.Coin;
 import item.Item;
 import main.MainPanel;
@@ -134,16 +135,18 @@ public Map map;
 				
 			}
 			
-			//move, and get rid of coins
+			//move, and handle items
+			//if the item is a coin, then make the player automatically pick it up
 			for(int i = 0; i < GameManager.items.size(); i++) {
 				Item c = GameManager.items.get(i);
-				if(c.envHitbox.collision(c.pos, GameManager.player.envHitbox, GameManager.player.pos)) {
-					c.onPickup();
-					GameManager.items.remove(i);
-					i --;
-					continue;
+				if(c.autoPickup) {
+					if(c.envHitbox.collision(c.pos, GameManager.player.envHitbox, GameManager.player.pos)) {
+						c.onPickup();
+						GameManager.items.remove(i);
+						i --;
+						continue;
+					}
 				}
-				
 				c.tick(map);
 			}
 			

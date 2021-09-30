@@ -62,6 +62,14 @@ public abstract class Entity {
 				(int) (this.height * GameManager.tileSize), null);
 	}
 	
+	public void drawSprite(BufferedImage sprite, Graphics g, double width, double height) {
+		g.drawImage(sprite, 
+				(int) ((this.pos.x - width / 2) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2), 
+				(int) ((this.pos.y - height / 2) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2), 
+				(int) (width * GameManager.tileSize), 
+				(int) (height * GameManager.tileSize), null);
+	}
+	
 	public void drawHitboxes(Graphics g) {
 		g.setColor(Color.black);
 		envHitbox.draw(g, new Vector(this.pos));

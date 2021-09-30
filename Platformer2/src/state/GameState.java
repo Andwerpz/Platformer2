@@ -93,9 +93,10 @@ public class GameState extends State{
 		g.drawString("Health: " + GameManager.player.health, 20, 20);
 		
 		g.setColor(Color.black);
-		g.drawString("Gold: " + GameManager.gold, 20, 40);
+		g.drawString("Stamina: " + GameManager.player.stamina, 20, 40);
+		g.drawString("Gold: " + GameManager.gold, 20, 60);
 		
-		g.drawString("Wave: " + (gp.map.selectedWave), 20, 60);
+		g.drawString("Wave: " + (gp.map.selectedWave), 20, 80);
 		
 		
 		if(this.wavePause) {

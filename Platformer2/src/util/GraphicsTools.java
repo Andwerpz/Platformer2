@@ -69,6 +69,24 @@ public class GraphicsTools {
         return rotated;
     }
 	
+	//flips image vertically
+	public static BufferedImage flipImageVertical(BufferedImage image)
+    {
+        AffineTransform at = new AffineTransform();
+        at.concatenate(AffineTransform.getScaleInstance(1, -1));
+        at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
+        //return createTransformed(image, at);
+        
+        BufferedImage newImage = new BufferedImage(
+                image.getWidth(), image.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.transform(at);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return newImage;
+    }
+	
 	//combines two images
 	//useful when combining images that are usually drawn together
 	public static BufferedImage combineImages(BufferedImage a, BufferedImage b) {

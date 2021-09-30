@@ -8,8 +8,11 @@ import item.Coin;
 import particles.DamageNumber;
 import state.GameManager;
 import util.Vector;
+import weapon.AirburstShotgun;
 
 public class Chest extends Decoration{
+	
+	public boolean opened = false;	//can't usually loot a chest twice
 
 	public Chest(Vector pos) {
 		super(2, 2, pos);
@@ -28,11 +31,12 @@ public class Chest extends Decoration{
 
 	@Override
 	public void keyPressed(int k) {
-		if(k == KeyEvent.VK_E && this.collision(GameManager.player)) {
+		if(k == KeyEvent.VK_E && this.collision(GameManager.player) && !this.opened) {
 			for(int i = 0; i < 10; i++) {
 				double x = (Math.random() * this.width) - this.width / 2d + this.pos.x;
 				double y = -this.height / 2d + this.pos.y; 
 				GameManager.items.add(new Coin(new Vector(x, y)));
+				this.opened = true;
 			}
 		}
 	}
