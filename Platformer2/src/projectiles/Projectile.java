@@ -29,5 +29,6 @@ public abstract class Projectile extends Entity{
 	public abstract void tick(Map map);
 	public abstract void draw(Graphics g);
 	public abstract void hit();	//what does this projectile do on contact with something. does it explode? does it just die? does it spawn tons of particles?
+	public abstract void timeOut();	//what does this projectile do when it reaches the end of its lifetime?
 	
 }

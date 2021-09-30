@@ -63,8 +63,12 @@ public class Bullet extends Projectile{
 			
 		}
 		
-		
-		
+	}
+	
+	@Override
+	public void timeOut() {
+		//if the bullet reaches the end of its lifetime.
+		//default, don't do anything. 
 	}
 
 }

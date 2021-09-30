@@ -18,6 +18,8 @@ import state.GameManager;
 import util.GraphicsTools;
 import util.Point;
 import util.Vector;
+import weapon.AirburstShotgun;
+import weapon.Weapon;
 
 public class Player extends Entity{
 	
@@ -47,9 +49,9 @@ public class Player extends Entity{
 	public boolean leftAttack = false;
 	public boolean rightAttack = false;
 	
+	public Weapon equippedWeapon = new AirburstShotgun(new Vector(0, 0));
+	
 	public java.awt.Point mouse = new java.awt.Point(0, 0);
-	
-	
 	
 	public Player(Vector pos) {
 		super();
@@ -142,14 +144,20 @@ public class Player extends Entity{
 		if(this.attackTimer <= 0 && (this.mouseAttack || this.leftAttack || this.rightAttack)) {
 			this.attackTimer = this.attackCooldown;
 			if(this.mouseAttack) {
+				
+				Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
+				
+				Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));
+				
+				this.equippedWeapon.attack(this.pos, attackVector);
 				this.ma.Slash(pos, new Point(mouse.x, mouse.y));
 			}
 			else if(this.leftAttack) {
-				GameManager.projectiles.add(new Bullet(this.pos, new Vector(-0.2, 0), 1, 1, 5));
+				this.equippedWeapon.attack(this.pos, new Vector(-1, 0));
 				this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
 			}
 			else {
-				GameManager.projectiles.add(new Bullet(this.pos, new Vector(0.2, 0), 1, 1, 5));
+				this.equippedWeapon.attack(this.pos, new Vector(1, 0));
 				this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
 			}
 			

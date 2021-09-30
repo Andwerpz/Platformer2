@@ -108,20 +108,30 @@ public Map map;
 			//also do collision checks between projectiles and enemies
 			for(int i = 0; i < GameManager.projectiles.size(); i++) {
 				Projectile p = GameManager.projectiles.get(i);
-				if(p.timeLeft < 0) {
-					p.hit();//might change this function up to say something like "onRemove". The functionality is going to be the same though
+				if(p.timeLeft == 0) {
+					p.timeOut();
 					GameManager.projectiles.remove(i);
 					i--;
 					continue;
 				}
 				p.tick(map);
+				if(p.timeLeft < 0) {
+					GameManager.projectiles.remove(i);
+					i--;
+					continue;
+				}
 				for(int j = 0; j < GameManager.enemies.size(); j++) {
 					Enemy e = GameManager.enemies.get(j);
 					if(e.hit(p.envHitbox, p.pos, p.vel, p.damage)) {
 						p.hit();
+						if(p.timeLeft < 0) {
+							GameManager.projectiles.remove(i);
+							i--;
+						}
 						break;
 					}
 				}
+				
 			}
 			
 			//move, and get rid of coins
