@@ -46,6 +46,8 @@ public class EditorState extends State {
 	public boolean placeDecoration = false;
 	public int decorationType = 3;
 	
+	public boolean placePlayerSpawn = false;
+	
 	public int tileType = 1;
 	
 	public Vector cameraPos;
@@ -60,6 +62,7 @@ public class EditorState extends State {
 		bm.addButton(new Button(10, 190, 100, 25, "Add Wave"));
 		bm.addButton(new Button(10, 220, 50, 25, "Prev"));
 		bm.addButton(new Button(60, 220, 50, 25, "Next"));
+		bm.addButton(new Button(10, 310, 50, 25, "Player Spawn"));
 		
 		
 		bm.addToggleButton(new ToggleButton(10, 70, 100, 25, "Erase"));	bm.toggleButtons.get(0).setToggled(false);
@@ -81,7 +84,7 @@ public class EditorState extends State {
 		
 		this.map.loadMapTileTextures();
 		
-		this.map.readFromFile(filepath);
+		//this.map.readFromFile(filepath);
 		//this.map.calculateMapLight();
 		
 		this.cameraPos = new Vector(this.map.map[0].length / 2, this.map.map.length / 2);
@@ -99,6 +102,7 @@ public class EditorState extends State {
 		int width = this.map.map[0].length;
 		int height = this.map.map.length;
 		
+		MainPanel.fout.println(this.map.playerSpawn.x + " " + this.map.playerSpawn.y);
 		MainPanel.fout.println(width + " " + height);
 		
 		for(int i = 0; i < height; i++) {
@@ -163,6 +167,14 @@ public class EditorState extends State {
 		double mapY = ((mouse.y + GameManager.cameraOffset.y - MainPanel.HEIGHT / 2) / GameManager.tileSize);
 		mapX = Math.round(mapX * 2d) / 2d;
 		mapY = Math.round(mapY * 2d) / 2d;
+		
+		if(this.placePlayerSpawn) {
+			if(this.leftMouse) {
+				this.placePlayerSpawn = false;
+				this.map.playerSpawn = new Vector(mapX, mapY);
+				return;
+			}
+		}
 		
 		if(!this.erase) {
 			if(this.placeEnemy) {
@@ -372,6 +384,10 @@ public class EditorState extends State {
 			case "Next":
 				this.map.selectedWave ++;
 				this.map.selectedWave = Math.min(this.map.selectedWave, this.map.enemyWaves.size() - 1);
+				break;
+				
+			case "Player Spawn":
+				this.placePlayerSpawn = true;
 				break;
 			}
 		}

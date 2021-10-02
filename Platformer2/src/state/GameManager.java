@@ -55,6 +55,9 @@ public class GameManager {
 	public static int transitionTimeLeft;
 	public static String transitionMessage;
 	
+	public static BufferedImage healthBar = GraphicsTools.loadImage("/Textures/UI/healthbar resized.png");
+	
+	
 	public GameManager() {
 		
 		GameManager.player = new Player(new Vector(0, 0));
@@ -79,7 +82,7 @@ public class GameManager {
 		GameManager.cameraOffset = new Vector(0, 0);
 		
 		curState = new GameState();
-		//curState = new EditorState("hub.txt");
+		//curState = new EditorState("crucible with waves.txt");
 		curState.init();
 	}
 	

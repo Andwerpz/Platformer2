@@ -9,6 +9,7 @@ import particles.DamageNumber;
 import state.GameManager;
 import util.Vector;
 import weapon.AirburstShotgun;
+import weapon.Weapon;
 
 public class Chest extends Decoration{
 	
@@ -32,11 +33,11 @@ public class Chest extends Decoration{
 	@Override
 	public void keyPressed(int k) {
 		if(k == KeyEvent.VK_E && this.collision(GameManager.player) && !this.opened) {
-			for(int i = 0; i < 10; i++) {
+			for(int i = 0; i < 1; i++) {
 				double x = (Math.random() * this.width) - this.width / 2d + this.pos.x;
 				double y = -this.height / 2d + this.pos.y; 
-				GameManager.items.add(new Coin(new Vector(x, y)));
-				this.opened = true;
+				GameManager.items.add(Weapon.getWeapon((int) (Math.random() * 4), new Vector(x, y)));
+				//this.opened = true;
 			}
 		}
 	}

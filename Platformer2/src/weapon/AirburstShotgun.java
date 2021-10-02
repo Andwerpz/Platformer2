@@ -13,11 +13,6 @@ import util.Vector;
 
 public class AirburstShotgun extends Weapon {
 	
-	//uncommon
-	
-	public static ArrayList<BufferedImage> animation;
-	public static ArrayList<BufferedImage> rarityAnimation;	//shows rarity color
-	
 	public static double slugVel = 0.3;
 	public static double pelletVel = 0.8;
 	
@@ -30,38 +25,23 @@ public class AirburstShotgun extends Weapon {
 	public AirburstShotgun(Vector pos) {
 		super(pos);
 		this.attackStaminaCost = 30;
+		this.id = 0;
 	}
 
 	@Override
 	public void attack(Vector pos, Vector attackDir) {
 		
-		attackDir.setMagnitude(slugVel);
+		Vector nextPos = new Vector(pos);
+		attackDir.setMagnitude(2.5);
+		nextPos.addVector(attackDir);
 		
-		GameManager.projectiles.add(new AirburstShotgun_Slug(pos, attackDir, slugDamage));
-		
-	}
-
-	@Override
-	public void onPickup() {
-		// TODO Auto-generated method stub
+		GameManager.projectiles.add(new AirburstShotgun_Slug(nextPos, attackDir, slugDamage));
 		
 	}
 	
 	public static void loadAnimations() {
-		AirburstShotgun.animation = GraphicsTools.loadAnimation("/Textures/Weapons/airburst shotgun.png", 32, 32);
-		AirburstShotgun.rarityAnimation = GraphicsTools.loadAnimation("/Textures/Weapons/airburst shotgun rarity.png", 32, 32);
 		AirburstShotgun_Slug.animation = GraphicsTools.loadAnimation("/Textures/Bullets/shotgun slug.png", 10, 10);
 		AirburstShotgun_Pellet.animation = GraphicsTools.loadAnimation("/Textures/Bullets/shotgun pellet.png", 5, 5);
-	}
-
-	@Override
-	public void draw(Graphics g) {
-		if(this.collision(GameManager.player)) {
-			this.drawSprite(AirburstShotgun.rarityAnimation.get(0), g);
-		}
-		else {
-			this.drawSprite(AirburstShotgun.animation.get(0), g);
-		}
 	}
 	
 }
@@ -77,6 +57,7 @@ class AirburstShotgun_Slug extends Bullet {
 
 	public AirburstShotgun_Slug(Vector pos, Vector vel, int damage) {
 		super(pos, vel, AirburstShotgun.slugSize, AirburstShotgun.slugSize, damage);
+		this.vel.setMagnitude(AirburstShotgun.slugVel);
 		this.timeLeft = 20;
 		
 		this.dieOnHit = true;

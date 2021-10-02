@@ -11,8 +11,6 @@ import util.Vector;
 
 public class OK47 extends Weapon {
 	
-	public ArrayList<BufferedImage> animation;
-	
 	public static double bulletSize = 0.4;
 	public static double bulletVel = 0.6;
 	public static int bulletDamage = 2;
@@ -22,19 +20,17 @@ public class OK47 extends Weapon {
 	public OK47(Vector pos) {
 		super(pos);
 		
-		this.attackStaminaCost = 5;
+		this.attackStaminaCost = 2;
 		this.attackDelay = 6;
+		this.id = 1;
 	}
 
 	@Override
 	public void attack(Vector pos, Vector attackDir) {
-		GameManager.projectiles.add(new OK47_Bullet(pos, attackDir));
-	}
-
-	@Override
-	public void onPickup() {
-		// TODO Auto-generated method stub
-		
+		Vector nextPos = new Vector(pos);
+		attackDir.setMagnitude(2.5);
+		nextPos.addVector(attackDir);
+		GameManager.projectiles.add(new OK47_Bullet(nextPos, attackDir));
 	}
 	
 	public static void loadAnimations() {

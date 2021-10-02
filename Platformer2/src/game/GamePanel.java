@@ -234,7 +234,20 @@ public Map map;
 		
 		map.draw(g);
 		
-
+		//draw ui
+		//for now, a simple png overlay will do
+		//in the future, I want to have control over the components of the overlay, so I can dynamically shrink and stretch the health bar
+		
+		int healthBarWidth = 360;
+		int staminaBarWidth = 240;
+		
+		g.setColor(Color.RED);
+		g.fillRect(0, 33, (int) (((double) GameManager.player.health / (double) GameManager.player.maxHealth) * (double) healthBarWidth), 33);
+		
+		g.setColor(Color.blue);
+		g.fillRect(0, 64, (int) (((double) GameManager.player.stamina / (double) GameManager.player.maxStamina) * (double) staminaBarWidth), 33);
+		
+		g.drawImage(GameManager.healthBar, 0, 0, 400, 120, null);
 		
 		//gray pause overlay
 		if(pause) {

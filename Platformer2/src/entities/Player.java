@@ -19,7 +19,9 @@ import state.GameManager;
 import util.GraphicsTools;
 import util.Point;
 import util.Vector;
+import weapon.AK47;
 import weapon.AirburstShotgun;
+import weapon.FamilyHeirloom;
 import weapon.OK47;
 import weapon.Weapon;
 
@@ -55,7 +57,7 @@ public class Player extends Entity{
 	
 	public boolean pickUpWeapon = false;
 	
-	public Weapon equippedWeapon = new OK47(new Vector(0, 0));
+	public Weapon equippedWeapon = new FamilyHeirloom(new Vector(0, 0));
 	
 	public java.awt.Point mouse = new java.awt.Point(0, 0);
 	
@@ -214,7 +216,7 @@ public class Player extends Entity{
 		this.drawSprite(Player.animationIdle.get(0), g);
 		
 		//draw the currently equipped weapon
-		BufferedImage wepImg = AirburstShotgun.animation.get(0);
+		BufferedImage wepImg = Weapon.sprites.get(this.equippedWeapon.id);
 		Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
 		
 		Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));

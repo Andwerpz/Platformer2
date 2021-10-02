@@ -152,19 +152,25 @@ public class GraphicsTools {
 		return img;
 	}
 	
+	//loads images from spritesheet
+	//goes from top left to bottom right, going horizontally first
 	public static ArrayList<BufferedImage> loadAnimation(String filepath, int width, int height){
 		
 		ArrayList<BufferedImage> animation = new ArrayList<BufferedImage>();
 		
 		BufferedImage animationPng = GraphicsTools.loadImage(filepath);
 		
-		int animationLength = animationPng.getHeight() / height;
+		int spritesheetHeight = animationPng.getHeight();
+		int spritesheetWidth = animationPng.getWidth();
 		
-		for(int i = 0; i < animationLength; i++) {
-			BufferedImage next = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			Graphics g = next.getGraphics();
-			g.drawImage(animationPng, 0, -(i * height), null);
-			animation.add(next);
+		for(int i = 0; i < spritesheetHeight / height; i++) {
+			for(int j = 0; j < spritesheetWidth / width; j++) {
+				BufferedImage next = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+				Graphics g = next.getGraphics();
+				g.drawImage(animationPng, -(j * width), -(i * height), null);
+				animation.add(next);
+			}
+			
 		}
 		
 		return animation;

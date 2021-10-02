@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import game.Map;
 import main.MainPanel;
 import state.GameManager;
+import util.GraphicsTools;
 import util.Point;
 import util.Vector;
+import weapon.Weapon;
 
 public abstract class Entity {
 	
@@ -68,6 +70,26 @@ public abstract class Entity {
 				(int) ((this.pos.y - height / 2) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2), 
 				(int) (width * GameManager.tileSize), 
 				(int) (height * GameManager.tileSize), null);
+	}
+	
+	//rotating clockwise?
+	public void drawRotatedSprite(BufferedImage sprite, Graphics g, double rads) {
+		BufferedImage rotatedImg = GraphicsTools.rotateImageByDegrees(sprite, Math.toDegrees((rads)));
+		
+		double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
+		double w = this.width;
+	    double h = this.height;
+	    double newWidth = w * cos + h * sin;
+	    double newHeight = h * cos + w * sin;
+
+		this.drawSprite(rotatedImg, g, newWidth, newHeight);
+	}
+	
+	public void drawPointAtSprite(BufferedImage sprite, Graphics g, Vector pointAt) {
+		
+		double rads = Math.atan2(pointAt.y, pointAt.x);
+		
+		this.drawRotatedSprite(sprite, g, rads);
 	}
 	
 	public void drawHitboxes(Graphics g) {

@@ -15,6 +15,7 @@ import state.GameManager;
 import util.GraphicsTools;
 import util.Vector;
 import weapon.AirburstShotgun;
+import weapon.Weapon;
 
 public class Tree extends Decoration {
 	
@@ -47,13 +48,13 @@ public class Tree extends Decoration {
 		//the tree can drop one apple. The player can walk up to the tree and press 'e' to shake it.
 		
 		if(k == KeyEvent.VK_E && this.envHitbox.collision(this.pos, GameManager.player.envHitbox, GameManager.player.pos)) {
-			if(!this.droppedApple && Math.random() > 0.9) {
+			if(Math.random() > 0.99) {
 				double x = (Math.random() * this.width) - this.width / 2d + this.pos.x;
 				double y = (Math.random() * this.height) - this.height / 2d + this.pos.y; 
 				this.droppedApple = true;
-				GameManager.items.add(new AirburstShotgun(new Vector(x, y)));
+				GameManager.items.add(new Apple(new Vector(x, y)));
 			}
-			else if(!this.droppedApple) {
+			else {
 				for(int i = 0; i < 10; i++) {
 					double x = (Math.random() * this.width) - this.width / 2d + this.pos.x;
 					double y = (Math.random() * this.height) - this.height / 2d + this.pos.y; 

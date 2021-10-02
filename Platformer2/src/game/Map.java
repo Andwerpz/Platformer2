@@ -22,6 +22,7 @@ import decorations.Decoration;
 import decorations.Tree;
 import enemy.Enemy;
 import enemy.Slime;
+import entities.Player;
 import main.MainPanel;
 import state.GameManager;
 import util.GraphicsTools;
@@ -263,8 +264,8 @@ public class Map {
 			fin = new BufferedReader(new InputStreamReader(is));
 			
 			StringTokenizer st = new StringTokenizer(fin.readLine());
-			double spawnY = Double.parseDouble(st.nextToken());	//row, col
-			double spawnX = Double.parseDouble(st.nextToken());
+			double spawnX = Double.parseDouble(st.nextToken());	//row, col
+			double spawnY = Double.parseDouble(st.nextToken());
 			
 			this.playerSpawn = new Vector(spawnX, spawnY);
 			
@@ -457,7 +458,10 @@ public class Map {
 			}
 		}
 		
-		
+		if(this.playerSpawn != null) {
+			Player p = new Player(this.playerSpawn);
+			p.drawHitboxes(g);
+		}
 		
 		
 	}

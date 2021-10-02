@@ -48,7 +48,7 @@ public class GameState extends State{
 	public void init() {
 		this.wavePauseTime = 360;	//initial wave pause time
 		
-		this.gp = new GamePanel("crucible with waves.txt");
+		this.gp = new GamePanel("hills");
 		
 	}
 
@@ -83,21 +83,21 @@ public class GameState extends State{
 		this.gp.draw(g, mouse);
 		
 		//drawing hud
-		g.setFont(new Font("Dialogue", Font.BOLD, 12));
-		if(GameManager.player.immune) {
-			g.setColor(Color.RED);
-		}
-		else {
-			g.setColor(Color.black);
-		}
-		g.drawString("Health: " + GameManager.player.health, 20, 20);
-		
-		g.setColor(Color.black);
-		g.drawString("Stamina: " + GameManager.player.stamina, 20, 40);
-		g.drawString("Gold: " + GameManager.gold, 20, 60);
-		
-		g.drawString("Wave: " + (gp.map.selectedWave), 20, 80);
-		
+//		g.setFont(new Font("Dialogue", Font.BOLD, 12));
+//		if(GameManager.player.immune) {
+//			g.setColor(Color.RED);
+//		}
+//		else {
+//			g.setColor(Color.black);
+//		}
+//		g.drawString("Health: " + GameManager.player.health, 20, 20);
+//		
+//		g.setColor(Color.black);
+//		g.drawString("Stamina: " + GameManager.player.stamina, 20, 40);
+//		g.drawString("Gold: " + GameManager.gold, 20, 60);
+//		
+//		g.drawString("Wave: " + (gp.map.selectedWave), 20, 80);
+//		
 		
 		if(this.wavePause) {
 			String popup = "Wave " + (gp.map.selectedWave + 1);
@@ -110,6 +110,7 @@ public class GameState extends State{
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setFont(popupFont);
 			g2.setComposite(GraphicsTools.makeComposite(this.wavePopupOpacity));
+			g2.setColor(Color.BLACK);
 			g2.drawString(popup, MainPanel.WIDTH / 2 - popupWidth / 2, MainPanel.HEIGHT / 4);
 		}
 		

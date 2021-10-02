@@ -1,16 +1,17 @@
 package weapon;
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import entities.Hitbox;
 import game.Map;
 import item.Item;
 import state.GameManager;
+import util.GraphicsTools;
 import util.Vector;
 
 public abstract class Weapon extends Item {
-	
-	//put all the animations here
 	
 	//rarities:
 	//common	#ffffff	white	
@@ -19,8 +20,11 @@ public abstract class Weapon extends Item {
 	//epic		#9f00d7	purple
 	//legendary	#d7a600	gold
 	
-	//just do the rarity color outline when the player is close enough to pick up the weapon
 	
+	//sprites, no animations for now
+	public static ArrayList<BufferedImage> sprites;
+	
+	public int id;
 	public int attackStaminaCost = 30;
 	public int attackDelay = 20;
 	
@@ -31,9 +35,32 @@ public abstract class Weapon extends Item {
 		this.envHitbox = new Hitbox(width, height);
 	}
 	
+	public static Weapon getWeapon(int id, Vector pos) {
+		switch(id) {
+		case 0:
+			return new AirburstShotgun(pos);
+			
+		case 1:
+			return new OK47(pos);
+			
+		case 2:
+			return new AK47(pos);
+			
+		case 3:
+			return new FamilyHeirloom(pos);
+			
+		default:
+			return new FamilyHeirloom(pos);	
+		}
+	}
+	
 	public static void loadAnimations() {
 		AirburstShotgun.loadAnimations();
 		OK47.loadAnimations();
+		AK47.loadAnimations();
+		FamilyHeirloom.loadAnimations();
+		
+		Weapon.sprites = GraphicsTools.loadAnimation("/Textures/Weapons/weapon sprites.png", 32, 32);
 	}
 	
 	public abstract void attack(Vector pos, Vector attackDir);	//create the bullets that are fired from the attack
@@ -43,7 +70,12 @@ public abstract class Weapon extends Item {
 	}
 	
 	public void draw(Graphics g) {
-		this.drawHitboxes(g);
+		if(Weapon.sprites.size() > this.id) {
+			this.drawSprite(Weapon.sprites.get(this.id), g);
+		}
+		else {
+			this.drawHitboxes(g);
+		}
 	}
 	
 	public void onDrop(Vector pos) {
@@ -52,5 +84,7 @@ public abstract class Weapon extends Item {
 		this.vel = new Vector(Math.random() * 0.3 - 0.15, -0.2);
 		GameManager.items.add(this);
 	}
+	
+	public void onPickup() {}
 
 }
