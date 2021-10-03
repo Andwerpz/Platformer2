@@ -28,7 +28,7 @@ import util.Vector;
 
 public class GamePanel {
 
-public Map map;
+	public Map map;
 	
 	public BufferedImage nearBackground;
 	public BufferedImage farBackground;
@@ -37,9 +37,8 @@ public Map map;
 	
 	public boolean pause = false;	//if buttons do show up, then they should be drawn in the state class
 
-	public GamePanel(String mapfile) {
-		map = new Map();
-		map.readFromFile(mapfile);
+	public GamePanel(Map map) {
+		this.map = map;
 		
 		map.calculateMapLight();
 		

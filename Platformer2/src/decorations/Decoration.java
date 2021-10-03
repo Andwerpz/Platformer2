@@ -22,6 +22,7 @@ public abstract class Decoration extends Entity {
 	public static final int TREE = 1;
 	public static final int SHOP = 2;
 	public static final int CHEST = 3;
+	public static final int ELEVATOR = 4;
 	
 	public int animationFrame;
 	public int animationFrameInterval;
@@ -48,10 +49,15 @@ public abstract class Decoration extends Entity {
 			
 		case CHEST:
 			return new Chest(pos);
+			
+		case ELEVATOR:
+			return new Elevator(pos);
 		}
 		
 		return null;
 	}
+	
+	
 	
 	public abstract void tick(Map map);
 	public abstract void draw(Graphics g);

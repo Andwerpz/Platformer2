@@ -18,6 +18,7 @@ import entities.Entity;
 import entities.Hitbox;
 import entities.Player;
 import game.Map;
+import game.TilesetManager;
 import item.Coin;
 import item.Item;
 import main.MainPanel;
@@ -71,6 +72,8 @@ public class GameManager {
 		Map.loadTileTextures();
 		MeleeAttack.loadTextures();
 		
+		TilesetManager.loadTiles();
+		
 		//Slime.loadTextures();
 		
 		GameManager.enemies = new ArrayList<Enemy>();
@@ -82,7 +85,7 @@ public class GameManager {
 		GameManager.cameraOffset = new Vector(0, 0);
 		
 		curState = new GameState();
-		//curState = new EditorState("crucible with waves.txt");
+		//curState = new EditorState("tile start template.txt");
 		curState.init();
 	}
 	

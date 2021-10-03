@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import button.Button;
 import button.ButtonManager;
@@ -44,9 +45,11 @@ public class EditorState extends State {
 	public boolean leftMouseReleased = false;
 	
 	public boolean placeDecoration = false;
-	public int decorationType = 3;
+	public int decorationType = 4;
 	
 	public boolean placePlayerSpawn = false;
+	
+	public boolean fillMode = false;
 	
 	public int tileType = 1;
 	
@@ -62,21 +65,24 @@ public class EditorState extends State {
 		bm.addButton(new Button(10, 190, 100, 25, "Add Wave"));
 		bm.addButton(new Button(10, 220, 50, 25, "Prev"));
 		bm.addButton(new Button(60, 220, 50, 25, "Next"));
-		bm.addButton(new Button(10, 310, 50, 25, "Player Spawn"));
+		bm.addButton(new Button(10, 280, 50, 25, "Prev Dec"));
+		bm.addButton(new Button(60, 280, 50, 25, "Next Dec"));
+		bm.addButton(new Button(10, 340, 50, 25, "Player Spawn"));
 		
 		
 		bm.addToggleButton(new ToggleButton(10, 70, 100, 25, "Erase"));	bm.toggleButtons.get(0).setToggled(false);
 		bm.addToggleButton(new ToggleButton(10, 100, 100, 25, "Draw Grid"));	bm.toggleButtons.get(1).setToggled(true);
 		bm.addToggleButton(new ToggleButton(10, 160, 100, 25, "Place Enemy"));	bm.toggleButtons.get(2).setToggled(false);
 		bm.addToggleButton(new ToggleButton(10, 250, 100, 25, "Place Decoration"));	bm.toggleButtons.get(3).setToggled(false);
-		bm.addToggleButton(new ToggleButton(10, 280, 100, 25, "Rect Mode"));	bm.toggleButtons.get(4).setToggled(false);
+		bm.addToggleButton(new ToggleButton(10, 310, 100, 25, "Rect Mode"));	bm.toggleButtons.get(4).setToggled(false);	
+		bm.addToggleButton(new ToggleButton(10, 370, 100, 25, "Fill Mode"));	bm.toggleButtons.get(5).setToggled(false);
 		
 		this.map = new Map();
 		this.map.drawTileGrid = true;
 		this.map.editing = true;
 		
-		int width = 100;
-		int height = 100;
+		int width = 60;
+		int height = 60;
 		
 		this.map.map = new int[height][width];
 		
@@ -84,7 +90,7 @@ public class EditorState extends State {
 		
 		this.map.loadMapTileTextures();
 		
-		//this.map.readFromFile(filepath);
+		this.map.readFromFile(filepath);
 		//this.map.calculateMapLight();
 		
 		this.cameraPos = new Vector(this.map.map[0].length / 2, this.map.map.length / 2);
@@ -150,6 +156,7 @@ public class EditorState extends State {
 		this.placeEnemy = bm.toggleButtons.get(2).getToggled();
 		this.placeDecoration = bm.toggleButtons.get(3).getToggled();
 		this.rectMode = bm.toggleButtons.get(4).getToggled();
+		this.fillMode = bm.toggleButtons.get(5).getToggled();
 		
 		double xDiff = mouse2.x - mouse.x;
 		double yDiff = mouse2.y - mouse.y;
@@ -275,28 +282,57 @@ public class EditorState extends State {
 			}
 			else {
 				if(mapX >= 0 && mapX < this.map.map[0].length && mapY >= 0 && mapY < this.map.map.length) {
-					if(erase && this.map.map[(int) mapY][(int) mapX] != 0) {
-						this.map.map[(int) mapY][(int) mapX] = 0;
-						for(int i = (int) mapY - 1; i <= (int) mapY + 1; i++) {
-							for(int j = (int) mapX - 1; j <= (int) mapX + 1; j++) {
-								if(i >= 0 && i < this.map.map.length && j >= 0 && j < this.map.map[0].length) {
-									this.map.loadTileTextures(i, j);
+					if(this.fillMode) {
+						if(this.map.map[(int) mapY][(int) mapX] == 0) {
+							Stack<int[]> s = new Stack<int[]>();
+							s.add(new int[] {(int) mapY, (int) mapX});
+							
+							
+							int[] dx = new int[] {-1, 1, 0, 0};
+							int[] dy = new int[] {0, 0, -1, 1};
+							
+							while(s.size() != 0) {
+								int[] cur = s.pop();
+								int curY = cur[0];
+								int curX = cur[1];
+								this.map.map[curY][curX] = this.tileType;
+								this.map.loadTileTextures(curY, curX);
+								for(int i = 0; i < 4; i++) {
+									int nextY = curY + dy[i];
+									int nextX = curX + dx[i];
+									if(this.map.map[nextY][nextX] == 0) {
+										s.add(new int[] {nextY, nextX});
+									}
 								}
 							}
 						}
 					}
-					else if(!erase){
-						this.map.map[(int) mapY][(int) mapX] = this.tileType;
-						for(int i = (int) mapY - 1; i <= (int) mapY + 1; i++) {
-							for(int j = (int) mapX - 1; j <= (int) mapX + 1; j++) {
-								if(i >= 0 && i < this.map.map.length && j >= 0 && j < this.map.map[0].length) {
-									this.map.loadTileTextures(i, j);
+					else {
+					
+						if(erase && this.map.map[(int) mapY][(int) mapX] != 0) {
+							this.map.map[(int) mapY][(int) mapX] = 0;
+							for(int i = (int) mapY - 1; i <= (int) mapY + 1; i++) {
+								for(int j = (int) mapX - 1; j <= (int) mapX + 1; j++) {
+									if(i >= 0 && i < this.map.map.length && j >= 0 && j < this.map.map[0].length) {
+										this.map.loadTileTextures(i, j);
+									}
 								}
 							}
 						}
-						
+						else if(!erase){
+							this.map.map[(int) mapY][(int) mapX] = this.tileType;
+							for(int i = (int) mapY - 1; i <= (int) mapY + 1; i++) {
+								for(int j = (int) mapX - 1; j <= (int) mapX + 1; j++) {
+									if(i >= 0 && i < this.map.map.length && j >= 0 && j < this.map.map[0].length) {
+										this.map.loadTileTextures(i, j);
+									}
+								}
+							}
+							
+						}
 					}
 				}
+				
 			}
 			
 			
@@ -384,6 +420,16 @@ public class EditorState extends State {
 			case "Next":
 				this.map.selectedWave ++;
 				this.map.selectedWave = Math.min(this.map.selectedWave, this.map.enemyWaves.size() - 1);
+				break;
+				
+			case "Prev Dec":
+				this.decorationType --;
+				decorationType = Math.max(decorationType, 0);
+				break;
+				
+			case "Next Dec":
+				this.decorationType ++;
+				decorationType = Math.min(decorationType, 4);
 				break;
 				
 			case "Player Spawn":

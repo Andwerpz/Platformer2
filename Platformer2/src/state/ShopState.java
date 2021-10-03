@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import game.GamePanel;
+import game.Map;
 
 
 public class ShopState extends State{
@@ -24,7 +25,9 @@ public class ShopState extends State{
 	@Override
 	public void init() {
 		//reset players health to max when they enter the hub
-		this.gp = new GamePanel("shop.txt");
+		Map map = new Map();
+		map.readFromFile("shop.txt");
+		this.gp = new GamePanel(map);
 		
 		GameManager.player.health = GameManager.player.maxHealth;
 	}

@@ -31,9 +31,12 @@ import util.Vector;
 
 public class Map {
 	
+	//value of -1 is invis wall
+	
 	public int[][] map;
 	
 	public BufferedImage[][] mapTileTexture;
+	public double[][] mapTileLight;
 	
 	public ArrayList<ArrayList<double[]>> enemyWaves;	//wave number, enemy number, {enemy type, row, col}
 	public int selectedWave = 0;
@@ -45,7 +48,7 @@ public class Map {
 	public static ArrayList<BufferedImage> cornerTextures;	//corners must be at the bottom left corner
 	public static ArrayList<BufferedImage> sideTextures;	//sides must be on the bottom
 	
-	public BufferedImage errorTileTexture;
+	public BufferedImage errorTileTexture;	//not used
 	public BufferedImage errorCornerTexture;
 	public BufferedImage errorSideTexture;
 	
@@ -56,6 +59,7 @@ public class Map {
 	
 	public Map() {
 		map = new int[][] {{0}};
+		mapTileLight = new double[][] {{0}};
 		mapTileTexture = new BufferedImage[][] {{null}};
 		
 		this.enemyWaves = new ArrayList<ArrayList<double[]>>();
@@ -65,6 +69,20 @@ public class Map {
 		
 		this.playerSpawn = new Vector(0, 0);
 		
+	}
+	
+	public Map(String filename) {
+		map = new int[][] {{0}};
+		mapTileTexture = new BufferedImage[][] {{null}};
+		
+		this.enemyWaves = new ArrayList<ArrayList<double[]>>();
+		this.enemyWaves.add(new ArrayList<double[]>());
+		
+		this.decorations = new ArrayList<double[]>();
+		
+		this.playerSpawn = new Vector(0, 0);
+		
+		this.readFromFile(filename);
 	}
 	
 	
@@ -121,11 +139,13 @@ public class Map {
 		
 		int[][] grid = new int[height][width];
 		
+		this.mapTileLight = new double[height][width];
+		
 		Queue<int[]> q = new ArrayDeque<int[]>();		
 		
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
-				if(this.map[i][j] == 0) {
+				if(this.map[i][j] == 0 || this.map[i][j] == -1) {
 					q.add(new int[] {i, j});
 					grid[i][j] = 0;
 				}
@@ -155,10 +175,11 @@ public class Map {
 			for(int j = 0; j < width; j++) {
 				int next = grid[i][j];
 				//System.out.print(next + " ");
-				if(next != 0) {
+				if(next > 0) {
 					//baking the lighting into the image
 					next = Math.min(next, 5);
 					double darkness = 1d - ((double) next / 5d);
+					this.mapTileLight[i][j] = darkness;
 					this.mapTileTexture[i][j] = GraphicsTools.darkenImage(darkness, this.mapTileTexture[i][j]);
 				}
 				
@@ -205,37 +226,37 @@ public class Map {
 			boolean change = false;
 			
 			//sides
-			if(i + 1 < map.length && map[i + 1][j] != 0) {
+			if(i + 1 < map.length && map[i + 1][j] > 0) {
 				img = GraphicsTools.combineImages(Map.sideTextures.get(tileTextureMap.get(map[i + 1][j])), img);
 				change = true;
 			}
-			if(i - 1 >= 0 && map[i - 1][j] != 0) {
+			if(i - 1 >= 0 && map[i - 1][j] > 0) {
 				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.sideTextures.get(tileTextureMap.get(map[i - 1][j])), 180), img);
 				change = true;
 			}
-			if(j + 1 < map[0].length && map[i][j + 1] != 0) {
+			if(j + 1 < map[0].length && map[i][j + 1] > 0) {
 				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.sideTextures.get(tileTextureMap.get(map[i][j + 1])), 270), img);
 				change = true;
 			}
-			if(j - 1 >= 0 && map[i][j - 1] != 0) {
+			if(j - 1 >= 0 && map[i][j - 1] > 0) {
 				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.sideTextures.get(tileTextureMap.get(map[i][j - 1])), 90), img);
 				change = true;
 			}
 			
 			//corners
-			if(i + 1 < map.length && j + 1 < map[0].length && map[i + 1][j + 1] != 0 && map[i + 1][j] == map[i][j + 1]) {
+			if(i + 1 < map.length && j + 1 < map[0].length && map[i + 1][j + 1] > 0 && map[i + 1][j] == map[i][j + 1]) {
 				img = GraphicsTools.combineImages(Map.cornerTextures.get(tileTextureMap.get(map[i + 1][j + 1])), img);
 				change = true;
 			}
-			if(i - 1 >= 0 && j + 1 < map[0].length && map[i - 1][j + 1] != 0 && map[i - 1][j] == map[i][j + 1]) {
+			if(i - 1 >= 0 && j + 1 < map[0].length && map[i - 1][j + 1] > 0 && map[i - 1][j] == map[i][j + 1]) {
 				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.cornerTextures.get(tileTextureMap.get(map[i - 1][j + 1])), 270), img);
 				change = true;
 			}
-			if(i + 1 < map.length && j - 1 >= 0 && map[i + 1][j - 1] != 0 && map[i + 1][j] == map[i][j - 1]) {
+			if(i + 1 < map.length && j - 1 >= 0 && map[i + 1][j - 1] > 0 && map[i + 1][j] == map[i][j - 1]) {
 				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.cornerTextures.get(tileTextureMap.get(map[i + 1][j - 1])), 90), img);
 				change = true;
 			}
-			if(i - 1 >= 0 && j - 1 >= 0 && map[i - 1][j - 1] != 0 && map[i - 1][j] == map[i][j - 1]) {
+			if(i - 1 >= 0 && j - 1 >= 0 && map[i - 1][j - 1] > 0 && map[i - 1][j] == map[i][j - 1]) {
 				img = GraphicsTools.combineImages(GraphicsTools.rotateImageByDegrees(Map.cornerTextures.get(tileTextureMap.get(map[i - 1][j - 1])), 180), img);
 				change = true;
 			}
@@ -275,6 +296,7 @@ public class Map {
 			
 			map = new int[height][width];
 			mapTileTexture = new BufferedImage[height][width];
+			mapTileLight = new double[height][width];
 			
 			for(int i = 0; i < height; i++) {
 				st = new StringTokenizer(fin.readLine());
@@ -346,7 +368,7 @@ public class Map {
 	}
 	
 	//returns true if all waves are cleared
-	public boolean spawnNextWave() {
+	public boolean spawnNextWave(int xOffset, int yOffset) {
 		if(this.selectedWave >= this.enemyWaves.size()) {
 			return true;
 		}
@@ -357,7 +379,7 @@ public class Map {
 			
 			switch(type) {
 			case Enemy.SLIME:
-				GameManager.enemies.add(new Slime(new Vector(x, y)));
+				GameManager.enemies.add(new Slime(new Vector(x + xOffset, y + yOffset)));
 				break;
 			}
 		}
@@ -393,7 +415,10 @@ public class Map {
 				
 				if(x > -GameManager.tileSize && x < MainPanel.WIDTH + GameManager.tileSize && y > -GameManager.tileSize && y < MainPanel.HEIGHT + GameManager.tileSize && this.mapTileTexture != null) {
 					
-					g.drawImage(this.mapTileTexture[i][j], x, y, null);
+					if(this.mapTileLight[i][j] > 0 || this.map[i][j] == 0 || this.map[i][j] == -1) {
+						g.drawImage(this.mapTileTexture[i][j], x, y, null);
+					}
+					
 					//g.drawImage(this.mapTileTexture[i][j], x, y, (int) GameManager.tileSize, (int) GameManager.tileSize, null);
 					
 					if(this.drawTileGrid) {

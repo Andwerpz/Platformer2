@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import game.GamePanel;
+import game.Map;
 
 
 public class HubState extends State{
@@ -24,7 +25,10 @@ public class HubState extends State{
 	@Override
 	public void init() {
 		
-		this.gp = new GamePanel("hub.txt");
+		Map map = new Map();
+		map.readFromFile("hub.txt");
+		
+		this.gp = new GamePanel(map);
 		
 		GameManager.player.health = GameManager.player.maxHealth;
 	}

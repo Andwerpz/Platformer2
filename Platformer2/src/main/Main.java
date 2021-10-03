@@ -26,8 +26,8 @@ public class Main {
 		
 		frame.setResizable(false);
 		frame.setLayout(new BorderLayout());
-//		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//		frame.setUndecorated(true);
+		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		//frame.setUndecorated(true);
 		frame.add(new MainPanel(), BorderLayout.CENTER);
 		frame.pack();
 		frame.setLocationRelativeTo(null);

@@ -57,7 +57,7 @@ public class Player extends Entity{
 	
 	public boolean pickUpWeapon = false;
 	
-	public Weapon equippedWeapon = new FamilyHeirloom(new Vector(0, 0));
+	public Weapon equippedWeapon = new AK47(new Vector(0, 0));
 	
 	public java.awt.Point mouse = new java.awt.Point(0, 0);
 	
