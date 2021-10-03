@@ -208,7 +208,7 @@ public class GamePanel {
 		g.drawImage(nearBackground, nearBackgroundOffset, nearVerticalOffset, (nearBackground.getWidth() * (nearHeight / nearBackground.getHeight())), nearHeight, null);
 		g.drawImage(nearBackground, nearBackgroundOffset + (nearBackground.getWidth() * (nearHeight / nearBackground.getHeight())), nearVerticalOffset, (nearBackground.getWidth() * (nearHeight / nearBackground.getHeight())), nearHeight, null);
 		
-		
+		map.drawBackground(g);
 		for(Decoration d : GameManager.decorations) {
 			d.draw(g);
 		}

@@ -1,15 +1,2 @@
-/button/
-/decorations/
-/enemy/
-/entities/
-/game/
-/item/
 /main/
-/melee/
-/particles/
-/projectiles/
-/shapes/
-/state/
-/util/
-/weapon/
-/Maps/
+/game/

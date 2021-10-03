@@ -1,6 +1,7 @@
 package game;
 
 import java.awt.image.BufferedImage;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -37,6 +38,9 @@ public class Map {
 	
 	public BufferedImage[][] mapTileTexture;
 	public double[][] mapTileLight;
+	
+	public BufferedImage nearLayerBackgroundImage;
+	public BufferedImage mapTileImage;	
 	
 	public ArrayList<ArrayList<double[]>> enemyWaves;	//wave number, enemy number, {enemy type, row, col}
 	public int selectedWave = 0;
@@ -133,6 +137,7 @@ public class Map {
 	
 	//pre-bakes the lighting for each tile before we call the render function.
 	//for now, it will just calculate the distance from each tile to the nearest 'air' block. Then it will do the lighting based on that.
+	//after lighting is calculated, we just draw it all into mapTileImage
 	public void calculateMapLight() {
 		int width = this.map[0].length;
 		int height = this.map.length;
@@ -198,6 +203,31 @@ public class Map {
 			//System.out.println();
 		}
 		
+		
+		//drawing tile textures to mapTileImage
+		this.mapTileImage = new BufferedImage((int) (GameManager.tileSize * this.map[0].length), (int) (GameManager.tileSize * this.map.length), BufferedImage.TYPE_INT_ARGB);
+		this.nearLayerBackgroundImage = new BufferedImage((int) (GameManager.tileSize * this.map[0].length), (int) (GameManager.tileSize * this.map.length), BufferedImage.TYPE_INT_ARGB);
+		Graphics gTile = this.mapTileImage.getGraphics();
+		Graphics gBackground = this.nearLayerBackgroundImage.getGraphics();
+		
+		for(int i = 0; i < this.map.length; i++) {
+			for(int j = 0; j < this.map[0].length; j++) {
+				
+				int x = (int) (j * GameManager.tileSize);
+				int y = (int) (i * GameManager.tileSize);
+				
+				if(this.mapTileTexture[i][j] != null) {
+					gTile.drawImage(this.mapTileTexture[i][j], x, y, null);
+				}
+				
+				if(this.map[i][j] <= 0) {
+					BufferedImage nextTile = GraphicsTools.copyImage(tileTextures.get(1));
+					nextTile = GraphicsTools.darkenImage(0.5, nextTile);
+					gBackground.drawImage(nextTile, x, y, (int) (GameManager.tileSize), (int) (GameManager.tileSize), null);
+				}
+				
+			}
+		}	
 	}
 	
 	//preloading all the tile images
@@ -399,8 +429,12 @@ public class Map {
 		return ans;
 	}
 	
+	//drawing the tiles that correspond to the hitboxes in the map
 	public void draw(Graphics g) {
 		
+		//old tile based map rendering
+		
+		/*
 		int minX = (int) (GameManager.cameraOffset.x / GameManager.tileSize - (MainPanel.WIDTH / 2) / GameManager.tileSize);
 		int minY = (int) (GameManager.cameraOffset.y / GameManager.tileSize - (MainPanel.HEIGHT / 2) / GameManager.tileSize);
 		
@@ -418,18 +452,52 @@ public class Map {
 					if(this.mapTileLight[i][j] > 0 || this.map[i][j] == 0 || this.map[i][j] == -1) {
 						g.drawImage(this.mapTileTexture[i][j], x, y, null);
 					}
-					
+					s
 					//g.drawImage(this.mapTileTexture[i][j], x, y, (int) GameManager.tileSize, (int) GameManager.tileSize, null);
 					
 					if(this.drawTileGrid) {
 						g.drawRect(x, y, (int) GameManager.tileSize, (int) GameManager.tileSize);
 					}
-				}
+				}s
 				
 				
 			}
 		}	
+		*/
 		
+		//draw the black bars around the map boundaries		
+		double top = -GameManager.cameraOffset.y + (double) MainPanel.HEIGHT / 2d;
+		double left = -GameManager.cameraOffset.x + (double) MainPanel.WIDTH / 2d;
+		double bottom = top + this.map.length * GameManager.tileSize;
+		double right = left + this.map[0].length * GameManager.tileSize;
+		
+		g.setColor(Color.BLACK);
+		
+		if(top >= 0) {
+			g.fillRect(0, 0, MainPanel.WIDTH, (int) top + 1);
+		}
+		if(left >= 0) {
+			g.fillRect(0, 0, (int) left + 1, MainPanel.HEIGHT);
+		}
+		if(bottom <= MainPanel.HEIGHT) {
+			g.fillRect(0, (int) bottom - 1, MainPanel.WIDTH, MainPanel.HEIGHT - (int) bottom + 1);
+		}
+		if(right <= MainPanel.WIDTH) {
+			g.fillRect((int) right - 1, 0, MainPanel.WIDTH - (int) right + 1, MainPanel.HEIGHT);
+		}
+
+		
+		//draw the tiles
+		g.drawImage(this.mapTileImage, (int) -GameManager.cameraOffset.x + MainPanel.WIDTH / 2, (int) -GameManager.cameraOffset.y + MainPanel.HEIGHT / 2, null);
+		
+	}
+	
+	//drawing the near and far layer backgrounds
+	//far layer background consists of pngs that scroll
+	//near layer background consists of a png that is made of tile textures. 
+	//there might be procedurally generated holes in the near layer background so that the far layer one is visible.
+	public void drawBackground(Graphics g) {
+		g.drawImage(this.nearLayerBackgroundImage, (int) (-GameManager.cameraOffset.x + (double) MainPanel.WIDTH / 2d), (int) (-GameManager.cameraOffset.y + (double) MainPanel.HEIGHT / 2d), null);
 	}
 	
 	
