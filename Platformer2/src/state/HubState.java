@@ -27,6 +27,7 @@ public class HubState extends State{
 		
 		Map map = new Map();
 		map.readFromFile("hub.txt");
+		map.generateNearBackground(-1);
 		
 		this.gp = new GamePanel(map);
 		

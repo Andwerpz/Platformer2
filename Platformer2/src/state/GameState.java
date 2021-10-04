@@ -54,11 +54,14 @@ public class GameState extends State{
 	public boolean wavePause = true;	//the pause between waves
 	//during the pause, a big "Wave x" should display
 	
-	public int wavePauseTime;
+	public int wavePauseTime = 240;
+	public int wavePauseTimer;
 	public double wavePopupOpacity = 1d;
 	
 	public int stageClearPopupTime = 120;
 	public int stageClearPopupTimer;
+	
+	public int levelsRemaining;
 	
 	public boolean win = false;
 	
@@ -70,7 +73,9 @@ public class GameState extends State{
 	public ArrayList<Map> levelTiles;
 	public ArrayList<Integer> levelTileOffsets;
 	
-	public GameState() {
+	public GameState(int levelsRemaining) {
+		
+		this.levelsRemaining = levelsRemaining;
 		
 		this.stageClearPopupTimer = 0;
 		
@@ -91,7 +96,7 @@ public class GameState extends State{
 		
 		tiles.add(startTile);
 		
-		for(int i = 0; i < 1; i++) {
+		for(int i = 0; i < 3; i++) {
 			levelTileOffsets.add(width);
 			
 			Map nextTile = new Map("slime cave");
@@ -114,11 +119,25 @@ public class GameState extends State{
 		int offset = 0;
 		for(int i = 0; i < tiles.size(); i++) {
 			Map nextTile = tiles.get(i);
+			
+			//importing tile data
 			for(int y = 0; y < nextTile.map.length; y++) {
 				for(int x = 0; x < nextTile.map[0].length; x++) {
 					map.map[y][x + offset] = nextTile.map[y][x];
 				}
 			}
+			
+			//importing decoration data
+			for(double[] d : nextTile.decorations) {
+				int decorationType = (int) d[0];
+				double row = d[1];
+				double col = d[2];
+				
+				col += offset;
+				
+				this.map.decorations.add(new double[] {decorationType, row, col});
+			}
+			
 			offset += nextTile.map[0].length + 1;
 			
 			if(i != tiles.size() - 1) {
@@ -135,6 +154,7 @@ public class GameState extends State{
 		
 		this.map.loadMapTileTextures();
 		this.map.calculateMapLight();
+		this.map.generateNearBackground(0);
 		
 		this.map.playerSpawn = startTile.playerSpawn;
 		
@@ -142,8 +162,8 @@ public class GameState extends State{
 
 
 	public void init() {
-		this.wavePauseTime = 360;	//initial wave pause time
 		
+		this.wavePauseTimer = this.wavePauseTime;;
 		this.gp = new GamePanel(this.map);
 		
 	}
@@ -151,7 +171,12 @@ public class GameState extends State{
 	//the player has reached the elevator at the end of the level
 	//if there are more layers, then just switch the layer, else, send them back to the hub.
 	public void nextLayer() {
-		GameManager.transition(new GameState(), "OWO");
+		if(this.levelsRemaining >= 2) {
+			GameManager.transition(new GameState(this.levelsRemaining - 1), "Levels Remaining: " + (this.levelsRemaining - 1));
+		}
+		else {
+			GameManager.transition(new HubState(), "Depth Cleared");
+		}
 	}
 
 	public void tick(java.awt.Point mouse2) {}
@@ -163,11 +188,13 @@ public class GameState extends State{
 		//everything else is handled in the game panel object
 		
 		//if a level isn't currently active, then check if the player has triggered a next level
+		//
 		if(!this.inLevel && this.curLevelNum < this.levelTiles.size()) {
 			//System.out.println(GameManager.player.pos.x + " " + this.levelTileOffsets.get(curLevelNum) + 5);
 			if(GameManager.player.pos.x > this.levelTileOffsets.get(curLevelNum) + 5) {
 				this.inLevel = true;
 				this.curLevel = this.levelTiles.get(this.curLevelNum);
+				this.wavePauseTimer = this.wavePauseTime;
 				//System.out.println("NEXT WAVE");
 				
 				//turning on the barriers
@@ -182,7 +209,7 @@ public class GameState extends State{
 			}
 		}
 		//if a level is active, then do the spawning logic
-		else {
+		else if(inLevel){
 			//spawn new enemies
 			if(GameManager.enemies.size() == 0 && !this.wavePause) {
 				if(this.curLevel.selectedWave >= this.curLevel.enemyWaves.size()) {
@@ -201,14 +228,14 @@ public class GameState extends State{
 				}
 				else {
 					this.wavePause = true;
-					this.wavePauseTime = 360;
+					this.wavePauseTimer = this.wavePauseTime;
 					//this.map.spawnNextWave();
 				}
 			}
 			
 			if(wavePause) {
-				this.wavePauseTime --;
-				if(this.wavePauseTime <= 0) {
+				this.wavePauseTimer --;
+				if(this.wavePauseTimer <= 0) {
 					this.wavePause = false;
 					this.curLevel.spawnNextWave(this.levelTileOffsets.get(curLevelNum), 0);
 				}
@@ -243,12 +270,12 @@ public class GameState extends State{
 			
 			int popupWidth = GraphicsTools.calculateTextWidth(popup, popupFont);
 			
-			this.wavePopupOpacity = ((double) this.wavePauseTime / (double) 360);
+			this.wavePopupOpacity = ((double) this.wavePauseTimer / (double) this.wavePauseTime);
 			
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setFont(popupFont);
 			g2.setComposite(GraphicsTools.makeComposite(this.wavePopupOpacity));
-			g2.setColor(Color.BLACK);
+			g2.setColor(Color.WHITE);
 			g2.drawString(popup, MainPanel.WIDTH / 2 - popupWidth / 2, MainPanel.HEIGHT / 4);
 			
 		}
@@ -264,7 +291,7 @@ public class GameState extends State{
 			Graphics2D g2 = (Graphics2D) g;
 			g2.setFont(popupFont);
 			g2.setComposite(GraphicsTools.makeComposite(opacity));
-			g2.setColor(Color.BLACK);
+			g2.setColor(Color.WHITE);
 			g2.drawString(popup, MainPanel.WIDTH / 2 - popupWidth / 2, MainPanel.HEIGHT / 4);
 		}
 		

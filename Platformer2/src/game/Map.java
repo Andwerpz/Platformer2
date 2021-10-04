@@ -206,9 +206,7 @@ public class Map {
 		
 		//drawing tile textures to mapTileImage
 		this.mapTileImage = new BufferedImage((int) (GameManager.tileSize * this.map[0].length), (int) (GameManager.tileSize * this.map.length), BufferedImage.TYPE_INT_ARGB);
-		this.nearLayerBackgroundImage = new BufferedImage((int) (GameManager.tileSize * this.map[0].length), (int) (GameManager.tileSize * this.map.length), BufferedImage.TYPE_INT_ARGB);
 		Graphics gTile = this.mapTileImage.getGraphics();
-		Graphics gBackground = this.nearLayerBackgroundImage.getGraphics();
 		
 		for(int i = 0; i < this.map.length; i++) {
 			for(int j = 0; j < this.map[0].length; j++) {
@@ -218,12 +216,6 @@ public class Map {
 				
 				if(this.mapTileTexture[i][j] != null) {
 					gTile.drawImage(this.mapTileTexture[i][j], x, y, null);
-				}
-				
-				if(this.map[i][j] <= 0) {
-					BufferedImage nextTile = GraphicsTools.copyImage(tileTextures.get(1));
-					nextTile = GraphicsTools.darkenImage(0.5, nextTile);
-					gBackground.drawImage(nextTile, x, y, (int) (GameManager.tileSize), (int) (GameManager.tileSize), null);
 				}
 				
 			}
@@ -427,6 +419,32 @@ public class Map {
 			ans.add(Decoration.getDecoration(type, new Vector(x, y)));
 		}
 		return ans;
+	}
+	
+	//generates the near background image
+	public void generateNearBackground(int tileType) {
+		
+		this.nearLayerBackgroundImage = new BufferedImage((int) (GameManager.tileSize * this.map[0].length), (int) (GameManager.tileSize * this.map.length), BufferedImage.TYPE_INT_ARGB);
+		Graphics gBackground = this.nearLayerBackgroundImage.getGraphics();
+		
+		if(tileType == -1) {	//set near background to be clear
+			return;
+		}
+		
+		for(int i = 0; i < this.map.length; i++) {
+			for(int j = 0; j < this.map[0].length; j++) {
+				
+				int x = (int) (j * GameManager.tileSize);
+				int y = (int) (i * GameManager.tileSize);
+				
+				if(this.map[i][j] <= 0) {
+					BufferedImage nextTile = GraphicsTools.copyImage(tileTextures.get(tileType));
+					nextTile = GraphicsTools.darkenImage(0.5, nextTile);
+					gBackground.drawImage(nextTile, x, y, (int) (GameManager.tileSize), (int) (GameManager.tileSize), null);
+				}
+				
+			}
+		}	
 	}
 	
 	//drawing the tiles that correspond to the hitboxes in the map

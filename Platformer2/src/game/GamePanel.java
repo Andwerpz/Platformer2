@@ -19,6 +19,7 @@ import item.Coin;
 import item.Item;
 import main.MainPanel;
 import particles.Particle;
+import projectiles.Explosion;
 import projectiles.Projectile;
 import state.GameManager;
 import state.HubState;
@@ -43,7 +44,7 @@ public class GamePanel {
 		map.calculateMapLight();
 		
 		Vector playerSpawn = map.playerSpawn;
-		GameManager.player = new Player(playerSpawn);
+		GameManager.player.pos = new Vector(playerSpawn);
 		
 		GameManager.enemies = new ArrayList<Enemy>();
 		GameManager.particles = new ArrayList<Particle>();
@@ -120,17 +121,25 @@ public class GamePanel {
 					i--;
 					continue;
 				}
-				for(int j = 0; j < GameManager.enemies.size(); j++) {
-					Enemy e = GameManager.enemies.get(j);
-					if(e.hit(p.envHitbox, p.pos, p.vel, p.damage)) {
-						p.hit();
-						if(p.timeLeft < 0) {
-							GameManager.projectiles.remove(i);
-							i--;
+				
+				//if this projectile still has hurt frames
+				if(p.active) {
+					if(p instanceof Explosion) {
+						System.out.println(p.active + " " + p.timeLeft);
+					}
+					for(int j = 0; j < GameManager.enemies.size(); j++) {
+						Enemy e = GameManager.enemies.get(j);
+						if(e.hit(p)) {
+							p.hit();
+							if(p.timeLeft < 0) {
+								GameManager.projectiles.remove(i);
+								i--;
+							}
+							break;
 						}
-						break;
 					}
 				}
+				
 				
 			}
 			
@@ -171,22 +180,6 @@ public class GamePanel {
 					GameManager.player.hit(e.envHitbox, e.pos, e.contactDamage);
 				}
 				
-			}
-			
-			//if the player is attacking 
-			boolean hit = false;
-			if(GameManager.player.ma.attacking) {
-				for(Enemy e : GameManager.enemies) {
-					
-					for(Hitbox h : GameManager.player.ma.activeHitboxes) {
-						if(e.hit(h, GameManager.player.pos, GameManager.player.ma.activeAttackVector, (int) (Math.random() * 9) + 1)) {
-							hit = true;
-							break;
-						}
-					}
-					
-	
-				}
 			}
 
 		}

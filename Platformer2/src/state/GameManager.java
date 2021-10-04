@@ -72,6 +72,8 @@ public class GameManager {
 		Map.loadTileTextures();
 		MeleeAttack.loadTextures();
 		
+		Projectile.loadAnimations();
+		
 		TilesetManager.loadTiles();
 		
 		//Slime.loadTextures();
@@ -84,8 +86,9 @@ public class GameManager {
 			
 		GameManager.cameraOffset = new Vector(0, 0);
 		
-		curState = new GameState();
-		//curState = new EditorState("tile start template.txt");
+		curState = new HubState();
+		//curState = new GameState();
+		//curState = new EditorState("hub.txt");
 		curState.init();
 	}
 	

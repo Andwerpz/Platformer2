@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import projectiles.Bullet;
+import projectiles.LargeExplosion;
 import state.GameManager;
 import util.GraphicsTools;
 import util.Vector;
@@ -52,6 +53,12 @@ class AK47_Bullet extends Bullet {
 	@Override
 	public void draw(Graphics g) {
 		this.drawSprite(animation.get(0), g);
+	}
+	
+	@Override
+	public void hit(){
+		this.timeLeft = -1;
+		GameManager.projectiles.add(new LargeExplosion(this.pos, 1));
 	}
 	
 }

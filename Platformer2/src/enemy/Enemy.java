@@ -9,6 +9,8 @@ import game.Map;
 import main.MainPanel;
 import melee.MeleeAttack;
 import particles.DamageNumber;
+import projectiles.Explosion;
+import projectiles.Projectile;
 import state.GameManager;
 import util.GraphicsTools;
 import util.Vector;
@@ -49,21 +51,32 @@ public abstract class Enemy extends Entity{
 	}
 
 	//returns true if the attack hit it
-	public boolean hit(Hitbox h, Vector playerPos, Vector attackVector, int damage) {
+	public boolean hit(Projectile p) {
 		boolean attackHit = false;
 		
-		if(this.envHitbox.collision(this.pos, h, playerPos)) {
+		if(this.envHitbox.collision(this.pos, p.envHitbox, p.pos)) {
 			
-			double xImpulse = attackVector.x > 0? 0.2 : -0.2;
+			Vector impulseVector = new Vector(0, 0);
 			
-			this.vel.addVector(new Vector(xImpulse, -0.01));
+			if(p instanceof Explosion) {
+				impulseVector = new Vector(this.pos.x - p.pos.x, this.pos.y - p.pos.y);
+				impulseVector.setMagnitude(0.5);
+			}
+			
+			else {
+				Vector attackVector = new Vector(p.vel);
+				double xImpulse = attackVector.x > 0? 0.2 : -0.2;
+				impulseVector = new Vector(xImpulse, 0.2);
+			}
+			
+			this.vel.addVector(impulseVector);
 			this.pos.y -= this.cushion * 2;
 			attackHit = true;
 			
-			this.health -= damage;
+			this.health -= p.damage;
 			
 			//add a new damage number particle
-			GameManager.particles.add(new DamageNumber(damage, this.pos));
+			GameManager.particles.add(new DamageNumber(p.damage, this.pos));
 			
 			//sets up immune frames
 			//maybe enemies don't need immunity frames.

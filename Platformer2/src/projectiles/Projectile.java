@@ -14,6 +14,7 @@ public abstract class Projectile extends Entity{
 	
 	public int timeLeft;	//how many ticks does this projectile have left. if this value is less than 0, then this projectile is going to be deleted.
 	public int damage;	//amount of damage this projectile deals
+	public boolean active = true;	//if true, then this projectile will deal damage, else then it's pretty much just a particle
 
 	public Projectile(Vector pos, Vector vel, double width, double height, int damage) {
 		this.pos = new Vector(pos);
@@ -27,6 +28,10 @@ public abstract class Projectile extends Entity{
 		
 		this.width = width;
 		this.height = height;
+	}
+	
+	public static void loadAnimations() {
+		Explosion.loadAnimations();
 	}
 	
 	public abstract void tick(Map map);

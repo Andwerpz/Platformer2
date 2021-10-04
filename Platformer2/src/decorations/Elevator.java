@@ -1,6 +1,7 @@
 package decorations;
 
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 import game.Map;
@@ -30,12 +31,13 @@ public class Elevator extends Decoration{
 
 	@Override
 	public void keyPressed(int k) {
-		if(this.active && this.collision(GameManager.player)) {
+		if(this.active && k == KeyEvent.VK_E && this.collision(GameManager.player)) {
 			if(GameManager.curState instanceof GameState) {	//if the player is currently in a level
-				
+				GameState gs = (GameState) GameManager.curState;
+				gs.nextLayer();
 			}
 			else {
-				GameManager.transition(new GameState(), "uwu");
+				GameManager.transition(new GameState(1), "downloading viruses");
 			}
 		}
 	}
