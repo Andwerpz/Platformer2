@@ -20,7 +20,7 @@ public class DamageNumber extends Particle{
 	public Font font = new Font("Georgia", Font.BOLD, 20);
 
 	public DamageNumber(int val, Vector pos) {
-		super();
+		super(pos, new Vector(0, 0), 0, 0);
 		
 		this.val = val;
 		this.pos = new Vector(pos);
@@ -37,6 +37,8 @@ public class DamageNumber extends Particle{
 		this.frictionInAir = false;
 		
 		this.timeLeft = 30;
+		
+		
 	}
 	
 	@Override

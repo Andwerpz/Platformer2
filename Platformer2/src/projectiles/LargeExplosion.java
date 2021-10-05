@@ -15,7 +15,7 @@ public class LargeExplosion extends Explosion{
 	public int animationFrame;
 	
 	public LargeExplosion(Vector pos, int damage) {
-		super(pos, 5, 5, damage);
+		super(pos, 8, 8, damage);
 		this.timeLeft = LargeExplosion.animation.size() * LargeExplosion.animationFrameTime;
 		this.animationFrame = 0;
 	}

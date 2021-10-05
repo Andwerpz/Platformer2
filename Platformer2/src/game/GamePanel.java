@@ -124,9 +124,6 @@ public class GamePanel {
 				
 				//if this projectile still has hurt frames
 				if(p.active) {
-					if(p instanceof Explosion) {
-						System.out.println(p.active + " " + p.timeLeft);
-					}
 					for(int j = 0; j < GameManager.enemies.size(); j++) {
 						Enemy e = GameManager.enemies.get(j);
 						if(e.hit(p)) {
@@ -134,8 +131,9 @@ public class GamePanel {
 							if(p.timeLeft < 0) {
 								GameManager.projectiles.remove(i);
 								i--;
+								break;
 							}
-							break;
+							
 						}
 					}
 				}

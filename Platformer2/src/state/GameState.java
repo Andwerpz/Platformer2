@@ -96,10 +96,12 @@ public class GameState extends State{
 		
 		tiles.add(startTile);
 		
-		for(int i = 0; i < 3; i++) {
+		for(int i = 0; i < 2; i++) {
 			levelTileOffsets.add(width);
 			
 			Map nextTile = new Map("slime cave");
+			
+			nextTile.mapTileTexture = new BufferedImage[][] {{null}};
 			
 			levelTiles.add(nextTile);
 			
@@ -153,18 +155,22 @@ public class GameState extends State{
 		}
 		
 		this.map.loadMapTileTextures();
-		this.map.calculateMapLight();
 		this.map.generateNearBackground(0);
 		
 		this.map.playerSpawn = startTile.playerSpawn;
+		this.wavePauseTimer = this.wavePauseTime;;
+		this.gp = new GamePanel(this.map);
 		
+		if(this.gp == null) {
+			System.out.println("NULL");
+			System.exit(0);
+		}
 	}
 
 
 	public void init() {
 		
-		this.wavePauseTimer = this.wavePauseTime;;
-		this.gp = new GamePanel(this.map);
+		
 		
 	}
 	

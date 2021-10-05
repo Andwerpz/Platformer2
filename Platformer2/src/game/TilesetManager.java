@@ -8,7 +8,6 @@ public class TilesetManager {
 	//eventually, tiles will be split up into categories depending on which depth they spawn at.
 
 	public static ArrayList<Map> levelTiles;
-	
 	public static ArrayList<Map> startTiles;
 	public static ArrayList<Map> endTiles;
 	

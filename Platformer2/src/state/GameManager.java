@@ -73,6 +73,7 @@ public class GameManager {
 		MeleeAttack.loadTextures();
 		
 		Projectile.loadAnimations();
+		Particle.loadAnimations();
 		
 		TilesetManager.loadTiles();
 		

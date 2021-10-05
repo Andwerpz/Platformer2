@@ -36,9 +36,11 @@ public abstract class Entity {
 	public double maxVerticalSpeed = 0.35;	//it's what it says
 	
 	public double groundFriction = 0.25;	//how much horizontal speed is leaked between frames.
+	public boolean frictionOnGround = true;	//does friction affect this entity while on the ground
 	
 	public double airFriction = 0.1;	//how much horizontal speed is leaked between frames in the air
 	public boolean frictionInAir = true;	//does friction affect you while in the air?
+	public boolean verticalFriction = false;	//in the air, does friction affect your vertical movement?
 	
 	public boolean envCollision = false;	//did this entity collide with the environment?	used for projectiles
 	
@@ -85,11 +87,31 @@ public abstract class Entity {
 		this.drawSprite(rotatedImg, g, newWidth, newHeight);
 	}
 	
+	//rotating clockwise?
+	public void drawRotatedSprite(BufferedImage sprite, Graphics g, double rads, double width, double height) {
+		BufferedImage rotatedImg = GraphicsTools.rotateImageByDegrees(sprite, Math.toDegrees((rads)));
+		
+		double sin = Math.abs(Math.sin(rads)), cos = Math.abs(Math.cos(rads));
+		double w = width;
+	    double h = height;
+	    double newWidth = w * cos + h * sin;
+	    double newHeight = h * cos + w * sin;
+
+		this.drawSprite(rotatedImg, g, newWidth, newHeight);
+	}
+	
 	public void drawPointAtSprite(BufferedImage sprite, Graphics g, Vector pointAt) {
 		
 		double rads = Math.atan2(pointAt.y, pointAt.x);
 		
 		this.drawRotatedSprite(sprite, g, rads);
+	}
+	
+	public void drawPointAtSprite(BufferedImage sprite, Graphics g, Vector pointAt, double width, double height) {
+		
+		double rads = Math.atan2(pointAt.y, pointAt.x);
+		
+		this.drawRotatedSprite(sprite, g, rads, width, height);
 	}
 	
 	public void drawHitboxes(Graphics g) {
@@ -146,11 +168,14 @@ public abstract class Entity {
 			this.vel.y += this.gravityAcceleration;
 		}
 		
-		if(this.onGround){
+		if(this.onGround && this.frictionOnGround){
 			this.vel.x *= (1d - this.groundFriction);
 		}
 		if(!this.onGround && this.frictionInAir) {
 			this.vel.x *= (1d - this.airFriction);
+			if(this.verticalFriction) {
+				this.vel.y *= (1d - this.airFriction);
+			}
 		}
 		
 		

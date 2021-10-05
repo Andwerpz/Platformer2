@@ -52,10 +52,6 @@ public class Map {
 	public static ArrayList<BufferedImage> cornerTextures;	//corners must be at the bottom left corner
 	public static ArrayList<BufferedImage> sideTextures;	//sides must be on the bottom
 	
-	public BufferedImage errorTileTexture;	//not used
-	public BufferedImage errorCornerTexture;
-	public BufferedImage errorSideTexture;
-	
 	public Vector playerSpawn;
 	
 	public boolean drawTileGrid = false;
@@ -176,6 +172,9 @@ public class Map {
 				}
 		}
 		
+		this.mapTileImage = new BufferedImage((int) (GameManager.tileSize * this.map[0].length), (int) (GameManager.tileSize * this.map.length), BufferedImage.TYPE_INT_ARGB);
+		Graphics gTile = this.mapTileImage.getGraphics();
+		
 		for(int i = 0; i < height; i++) {
 			for(int j = 0; j < width; j++) {
 				int next = grid[i][j];
@@ -198,13 +197,23 @@ public class Map {
 				
 				g2.drawImage(this.mapTileTexture[i][j], 0, 0, (int) GameManager.tileSize, (int) GameManager.tileSize, null);
 				
-				this.mapTileTexture[i][j] = resized;
+				int x = (int) (j * GameManager.tileSize);
+				int y = (int) (i * GameManager.tileSize);
+				
+				
+				gTile.drawImage(resized, x, y, null);
+				
+				if(this.editing) {
+					this.mapTileTexture[i][j] = resized;
+				}
+				
 			}
 			//System.out.println();
 		}
 		
 		
 		//drawing tile textures to mapTileImage
+		/*
 		this.mapTileImage = new BufferedImage((int) (GameManager.tileSize * this.map[0].length), (int) (GameManager.tileSize * this.map.length), BufferedImage.TYPE_INT_ARGB);
 		Graphics gTile = this.mapTileImage.getGraphics();
 		
@@ -219,7 +228,14 @@ public class Map {
 				}
 				
 			}
-		}	
+		}
+		*/	
+		
+		gTile.dispose();
+		
+		if(!editing) {
+			this.mapTileTexture = new BufferedImage[][] {{null}};
+		}
 	}
 	
 	//preloading all the tile images
@@ -444,7 +460,9 @@ public class Map {
 				}
 				
 			}
-		}	
+		}
+		
+		gBackground.dispose();
 	}
 	
 	//drawing the tiles that correspond to the hitboxes in the map

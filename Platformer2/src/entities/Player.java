@@ -23,6 +23,7 @@ import weapon.AK47;
 import weapon.AirburstShotgun;
 import weapon.FamilyHeirloom;
 import weapon.OK47;
+import weapon.RocketLauncher;
 import weapon.Weapon;
 
 public class Player extends Entity{
@@ -57,7 +58,7 @@ public class Player extends Entity{
 	
 	public boolean pickUpWeapon = false;
 	
-	public Weapon equippedWeapon = new AK47(new Vector(0, 0));
+	public Weapon equippedWeapon = new RocketLauncher(new Vector(0, 0));
 	
 	public java.awt.Point mouse = new java.awt.Point(0, 0);
 	

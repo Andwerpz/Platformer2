@@ -49,6 +49,12 @@ public abstract class Weapon extends Item {
 		case 3:
 			return new FamilyHeirloom(pos);
 			
+		case 4:
+			return new HuntingRifle(pos);
+			
+		case 5:
+			return new RocketLauncher(pos);
+			
 		default:
 			return new FamilyHeirloom(pos);	
 		}
@@ -59,6 +65,8 @@ public abstract class Weapon extends Item {
 		OK47.loadAnimations();
 		AK47.loadAnimations();
 		FamilyHeirloom.loadAnimations();
+		
+		RocketLauncher.loadAnimations();
 		
 		Weapon.sprites = GraphicsTools.loadAnimation("/Textures/Weapons/weapon sprites.png", 32, 32);
 	}
