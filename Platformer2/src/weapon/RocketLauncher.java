@@ -15,7 +15,8 @@ import util.Vector;
 public class RocketLauncher extends Weapon {
 	
 	public static double bulletSize = 0.5;
-	public static double bulletVel = 0.3;
+	public static double bulletStartVel = 0.1;
+	public static double bulletMaxVel = 0.8;
 	public static int bulletDamage = 20;
 	public static int explosionDamage = 10;
 	public static double bulletSpread = 2;	//in degrees;
@@ -50,13 +51,13 @@ class RocketLauncher_Rocket extends Bullet {
 
 	public RocketLauncher_Rocket(Vector pos, Vector vel) {
 		super(pos, vel, RocketLauncher.bulletSize, RocketLauncher.bulletSize, RocketLauncher.bulletDamage);
-		this.vel.setMagnitude(RocketLauncher.bulletVel + Math.random() * RocketLauncher.bulletVelSpread);
+		this.vel.setMagnitude(RocketLauncher.bulletStartVel + Math.random() * RocketLauncher.bulletVelSpread);
 		this.vel.rotateCounterClockwise(Math.random() * Math.toRadians(RocketLauncher.bulletSpread) - Math.toRadians(RocketLauncher.bulletSpread / 2d));
 	}
 	
 	@Override
 	public void draw(Graphics g) {
-		this.drawPointAtSprite(animation.get(0), g, this.vel, 2.2, 1);
+		this.drawPointAtSprite(animation.get(0), g, this.vel, 1.1, 0.5);
 	}
 	
 	@Override
@@ -72,12 +73,20 @@ class RocketLauncher_Rocket extends Bullet {
 	
 	@Override
 	public void tick(Map map) {
+		if(this.vel.getMagnitude() < RocketLauncher.bulletMaxVel) {
+			this.vel.setMagnitude(this.vel.getMagnitude() + 0.01);
+		}
 		this.move(map);
 		if(this.envCollision) {
 			this.hit();
 		}
 		this.timeLeft --;
-		GameManager.particles.add(new Smoke(this.pos, new Vector(Math.random() * smokeVel - smokeVel / 2d, Math.random() * smokeVel - smokeVel / 2d), Math.random() * 0.3 + 0.3));
+		
+		Vector smokePos = new Vector(this.pos);
+		Vector smokeOffset = new Vector(this.vel);
+		smokeOffset.setMagnitude(-0.6);
+		smokePos.addVector(smokeOffset);
+		GameManager.particles.add(new Smoke(smokePos, new Vector(Math.random() * smokeVel - smokeVel / 2d, Math.random() * smokeVel - smokeVel / 2d), Math.random() * 0.3 + 0.3));
 	}
 	
 }

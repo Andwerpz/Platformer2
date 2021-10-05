@@ -89,7 +89,7 @@ public class GameManager {
 		
 		curState = new HubState();
 		//curState = new GameState();
-		//curState = new EditorState("hub.txt");
+		//curState = new EditorState("slime cave loot");
 		curState.init();
 	}
 	

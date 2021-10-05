@@ -58,7 +58,6 @@ class AK47_Bullet extends Bullet {
 	@Override
 	public void hit(){
 		this.timeLeft = -1;
-		GameManager.projectiles.add(new LargeExplosion(this.pos, 1));
 	}
 	
 }

@@ -65,7 +65,7 @@ public abstract class Weapon extends Item {
 		OK47.loadAnimations();
 		AK47.loadAnimations();
 		FamilyHeirloom.loadAnimations();
-		
+		HuntingRifle.loadAnimations();
 		RocketLauncher.loadAnimations();
 		
 		Weapon.sprites = GraphicsTools.loadAnimation("/Textures/Weapons/weapon sprites.png", 32, 32);

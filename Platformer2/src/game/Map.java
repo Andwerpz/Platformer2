@@ -57,6 +57,8 @@ public class Map {
 	public boolean drawTileGrid = false;
 	public boolean editing = false;
 	
+	public boolean hasEnemies = false;
+	
 	public Map() {
 		map = new int[][] {{0}};
 		mapTileLight = new double[][] {{0}};
@@ -362,6 +364,8 @@ public class Map {
 						this.decorations.add(new double[] {decorationType, row, col});
 					}
 					else {
+						
+						this.hasEnemies = true;
 						
 						double row = Double.parseDouble(st.nextToken());
 						double col = Double.parseDouble(st.nextToken());

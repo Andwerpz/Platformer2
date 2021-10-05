@@ -96,14 +96,19 @@ public class GameState extends State{
 		
 		tiles.add(startTile);
 		
-		for(int i = 0; i < 2; i++) {
-			levelTileOffsets.add(width);
+		for(int i = 0; i < 5; i++) {
+			Map nextTile = new Map();
+			if(Math.random() > 0.5) {
+				nextTile = new Map("slime cave");
+			}
+			else {
+				nextTile = new Map("slime cave loot");
+			}
 			
-			Map nextTile = new Map("slime cave");
+			levelTileOffsets.add(width);
+			levelTiles.add(nextTile);
 			
 			nextTile.mapTileTexture = new BufferedImage[][] {{null}};
-			
-			levelTiles.add(nextTile);
 			
 			tiles.add(nextTile);
 			width += nextTile.map[0].length;
@@ -193,8 +198,12 @@ public class GameState extends State{
 		//doing enemy wave logic and drawing the hud
 		//everything else is handled in the game panel object
 		
+		while(this.curLevelNum < this.levelTiles.size() && !this.levelTiles.get(curLevelNum).hasEnemies) {
+			this.curLevelNum ++;
+		}
+		
 		//if a level isn't currently active, then check if the player has triggered a next level
-		//
+		
 		if(!this.inLevel && this.curLevelNum < this.levelTiles.size()) {
 			//System.out.println(GameManager.player.pos.x + " " + this.levelTileOffsets.get(curLevelNum) + 5);
 			if(GameManager.player.pos.x > this.levelTileOffsets.get(curLevelNum) + 5) {
