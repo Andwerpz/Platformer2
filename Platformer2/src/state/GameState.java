@@ -17,6 +17,7 @@ import enemy.Slime;
 import entities.Player;
 import game.GamePanel;
 import game.Map;
+import game.TilesetManager;
 import item.Coin;
 import item.Item;
 import main.MainPanel;
@@ -68,56 +69,46 @@ public class GameState extends State{
 	public GamePanel gp;
 	
 	public Map map;
-	public ArrayList<Map> tiles;
 	
 	public ArrayList<Map> levelTiles;
 	public ArrayList<Integer> levelTileOffsets;
+	
+	public ButtonManager bm;
 	
 	public GameState(int levelsRemaining) {
 		
 		this.levelsRemaining = levelsRemaining;
 		
+	}
+
+
+	public void init() {
+		
 		this.stageClearPopupTimer = 0;
 		
 		this.map = new Map();
-		this.tiles = new ArrayList<Map>();
 		
 		this.levelTileOffsets = new ArrayList<Integer>();
 		this.levelTiles = new ArrayList<Map>();
 		
+		ArrayList<String> tiles = TilesetManager.generateTiles();
+		
 		int height = 60;
 		int width = 0;
 		
-		Map startTile = new Map("tile start template.txt");
-		Map endTile = new Map("tile end template.txt");
-		
-		width += startTile.map[0].length;
-		width ++;
-		
-		tiles.add(startTile);
-		
-		for(int i = 0; i < 5; i++) {
-			Map nextTile = new Map();
-			if(Math.random() > 0.5) {
-				nextTile = new Map("slime cave");
-			}
-			else {
-				nextTile = new Map("slime cave loot");
-			}
+		for(int i = 0; i < tiles.size(); i++) {
+			Map nextTile = new Map(tiles.get(i));
 			
 			levelTileOffsets.add(width);
 			levelTiles.add(nextTile);
 			
 			nextTile.mapTileTexture = new BufferedImage[][] {{null}};
 			
-			tiles.add(nextTile);
 			width += nextTile.map[0].length;
 			width ++;
+			
+			
 		}
-		
-		tiles.add(endTile);
-		this.levelTileOffsets.add(width);
-		width += endTile.map[0].length;
 		
 		map.map = new int[height][width];
 		map.mapTileTexture = new BufferedImage[height][width];
@@ -125,7 +116,7 @@ public class GameState extends State{
 		
 		int offset = 0;
 		for(int i = 0; i < tiles.size(); i++) {
-			Map nextTile = tiles.get(i);
+			Map nextTile = levelTiles.get(i);
 			
 			//importing tile data
 			for(int y = 0; y < nextTile.map.length; y++) {
@@ -171,7 +162,7 @@ public class GameState extends State{
 		}
 		this.map.loadMapTileTextures();
 		this.map.generateNearBackground(0);
-		this.map.playerSpawn = startTile.playerSpawn;
+		this.map.playerSpawn = levelTiles.get(0).playerSpawn;
 		this.wavePauseTimer = this.wavePauseTime;;
 		
 		
@@ -186,12 +177,6 @@ public class GameState extends State{
 			System.out.println("NULL");
 			System.exit(0);
 		}
-	}
-
-
-	public void init() {
-		
-		
 		
 	}
 	
@@ -211,85 +196,73 @@ public class GameState extends State{
 
 	public void draw(Graphics g, java.awt.Point mouse) {
 		
-		//doing enemy wave logic and drawing the hud
-		//everything else is handled in the game panel object
-		
-		while(this.curLevelNum < this.levelTiles.size() && !this.levelTiles.get(curLevelNum).hasEnemies) {
-			this.curLevelNum ++;
-		}
-		
-		//if a level isn't currently active, then check if the player has triggered a next level
-		
-		if(!this.inLevel && this.curLevelNum < this.levelTiles.size()) {
-			//System.out.println(GameManager.player.pos.x + " " + this.levelTileOffsets.get(curLevelNum) + 5);
-			if(GameManager.player.pos.x > this.levelTileOffsets.get(curLevelNum) + 5) {
-				this.inLevel = true;
-				this.curLevel = this.levelTiles.get(this.curLevelNum);
-				this.wavePauseTimer = this.wavePauseTime;
-				//System.out.println("NEXT WAVE");
+		if(!this.gp.pause) {
+			//doing enemy wave logic and drawing the hud
+			//everything else is handled in the game panel object
+			
+			while(this.curLevelNum < this.levelTiles.size() && !this.levelTiles.get(curLevelNum).hasEnemies) {
+				this.curLevelNum ++;
+			}
+			
+			//if a level isn't currently active, then check if the player has triggered a next level
+			
+			if(!this.inLevel) {
 				
-				//turning on the barriers
-				for(int i = 0; i < this.levelTileOffsets.size(); i++) {
-					int x = this.levelTileOffsets.get(i) - 1;
-					//System.out.print(x + " ");
-					for(int y = 27; y <= 32; y++) {
-						this.map.map[y][x] = -1;
-					}
-				}
-				//System.out.println();
-			}
-		}
-		//if a level is active, then do the spawning logic
-		else if(inLevel){
-			//spawn new enemies
-			if(GameManager.enemies.size() == 0 && !this.wavePause) {
-				if(this.curLevel.selectedWave >= this.curLevel.enemyWaves.size()) {
-					this.inLevel = false;
-					this.curLevelNum ++;
-					
-					//turning off the barriers
-					for(int i = 0; i < this.levelTileOffsets.size(); i++) {
-						int x = this.levelTileOffsets.get(i) - 1;
-						for(int y = 27; y <= 32; y++) {
-							this.map.map[y][x] = 0;
+				this.stageClearPopupTimer --;
+				
+				if(this.curLevelNum < this.levelTileOffsets.size()) {
+					if(GameManager.player.pos.x > this.levelTileOffsets.get(curLevelNum) + 5) {
+						this.inLevel = true;
+						this.curLevel = this.levelTiles.get(this.curLevelNum);
+						this.wavePauseTimer = this.wavePauseTime;
+						//System.out.println("NEXT WAVE");
+						
+						//turning on the barriers
+						for(int i = 1; i < this.levelTileOffsets.size(); i++) {
+							int x = this.levelTileOffsets.get(i) - 1;
+							//System.out.print(x + " ");
+							for(int y = 27; y <= 32; y++) {
+								this.map.map[y][x] = -1;
+							}
 						}
+						//System.out.println();
 					}
-					
-					this.stageClearPopupTimer = this.stageClearPopupTime;
 				}
-				else {
-					this.wavePause = true;
-					this.wavePauseTimer = this.wavePauseTime;
-					//this.map.spawnNextWave();
+				
+			}
+			//if a level is active, then do the spawning logic
+			else if(inLevel){
+				//spawn new enemies
+				if(GameManager.enemies.size() == 0 && !this.wavePause) {
+					if(this.curLevel.selectedWave >= this.curLevel.enemyWaves.size()) {
+						this.inLevel = false;
+						this.curLevelNum ++;
+						
+						//turning off the barriers
+						for(int i = 1; i < this.levelTileOffsets.size(); i++) {
+							int x = this.levelTileOffsets.get(i) - 1;
+							for(int y = 27; y <= 32; y++) {
+								this.map.map[y][x] = 0;
+							}
+						}
+						
+						this.stageClearPopupTimer = this.stageClearPopupTime;
+					}
+					else {
+						this.wavePause = true;
+						this.wavePauseTimer = this.wavePauseTime;
+						//this.map.spawnNextWave();
+					}
+				}
+				
+				if(wavePause) {
+					this.wavePauseTimer --;
+					if(this.wavePauseTimer <= 0) {
+						this.wavePause = false;
+						this.curLevel.spawnNextWave(this.levelTileOffsets.get(curLevelNum), 0);
+					}
 				}
 			}
-			
-			if(wavePause) {
-				this.wavePauseTimer --;
-				if(this.wavePauseTimer <= 0) {
-					this.wavePause = false;
-					this.curLevel.spawnNextWave(this.levelTileOffsets.get(curLevelNum), 0);
-				}
-			}
-			
-			
-			
-			//drawing hud
-	//		g.setFont(new Font("Dialogue", Font.BOLD, 12));
-	//		if(GameManager.player.immune) {
-	//			g.setColor(Color.RED);
-	//		}
-	//		else {
-	//			g.setColor(Color.black);
-	//		}
-	//		g.drawString("Health: " + GameManager.player.health, 20, 20);
-	//		
-	//		g.setColor(Color.black);
-	//		g.drawString("Stamina: " + GameManager.player.stamina, 20, 40);
-	//		g.drawString("Gold: " + GameManager.gold, 20, 60);
-	//		
-	//		g.drawString("Wave: " + (gp.map.selectedWave), 20, 80);
-	//		
 			
 		}
 		
@@ -311,7 +284,6 @@ public class GameState extends State{
 			
 		}
 		else if(this.stageClearPopupTimer > 0) {
-			this.stageClearPopupTimer --;
 			String popup = "Stage Clear";
 			Font popupFont = new Font("Georgia", Font.BOLD, 48);
 			
@@ -328,10 +300,6 @@ public class GameState extends State{
 		
 		if(GameManager.player.health <= 0) {
 			GameManager.transition(new HubState(), "You Died");
-		}
-		
-		if(win) {
-		//GameManager.transition(new HubState(), "You Win");
 		}
 		
 	}
@@ -363,8 +331,9 @@ public class GameState extends State{
 
 	
 	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		if(this.gp.pause) {
+			//pause menu buttons
+		}
 	}
 
 	

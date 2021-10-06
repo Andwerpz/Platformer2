@@ -9,6 +9,7 @@ import entities.Hitbox;
 import game.Map;
 import state.GameManager;
 import util.GraphicsTools;
+import util.MathTools;
 import util.Vector;
 
 public class Coin extends Item {
@@ -47,6 +48,21 @@ public class Coin extends Item {
 			this.vel = new Vector(0, 0);
 		}
 		else {
+			//if the player is close enough, start moving towards player
+			double dist = MathTools.dist(this.pos.x, this.pos.y, GameManager.player.pos.x, GameManager.player.pos.y);
+			if(dist <= 5) {
+				Vector toPlayer = new Vector(GameManager.player.pos.x - this.pos.x, GameManager.player.pos.y - this.pos.y);
+				toPlayer.setMagnitude(0.1);
+				if(toPlayer.y < 0) {
+					this.pos.y -= this.cushion * 2;
+				}
+				this.vel.addVector(toPlayer);
+				this.gravity = false;
+			}
+			else {
+				this.gravity = true;
+			}
+			
 			this.move(map);
 		}
 		
