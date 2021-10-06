@@ -1,10 +1,13 @@
 package weapon;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import entities.Hitbox;
+import entities.Player;
 import game.Map;
 import item.Item;
 import state.GameManager;
@@ -84,6 +87,22 @@ public abstract class Weapon extends Item {
 		else {
 			this.drawHitboxes(g);
 		}
+		
+		//draw cost indicator above item
+		if(this.purchaseable) {
+			String costString = this.itemCost + "g";
+			Font font = new Font("Dialogue", Font.PLAIN, 12);
+			int stringWidth = GraphicsTools.calculateTextWidth(costString, font);
+			Vector labelPos = new Vector(this.pos);
+			labelPos.y -= this.height / 2;
+			Vector labelScreenPos = GameManager.getScreenPos(labelPos);
+			labelScreenPos.y -= font.getSize();
+			
+			g.setFont(font);
+			g.setColor(new Color(Integer.parseInt("fed752", 16)));
+			
+			g.drawString(costString, (int) (labelScreenPos.x - stringWidth / 2d), (int) labelScreenPos.y);
+		}
 	}
 	
 	public void onDrop(Vector pos) {
@@ -93,6 +112,17 @@ public abstract class Weapon extends Item {
 		GameManager.items.add(this);
 	}
 	
-	public void onPickup() {}
+	public void onPickup() {
+		if(this.purchaseable) {
+			if(GameManager.gold >= this.itemCost) {
+				GameManager.gold -= this.itemCost;
+				GameManager.player.swapWeapon(this);
+				this.purchaseable = false;
+			}
+		}
+		else {
+			GameManager.player.swapWeapon(this);
+		}
+	}
 
 }

@@ -32,6 +32,7 @@ public class Coin extends Item {
 		this.animationFrame = 0;
 		
 		this.autoPickup = true;
+		this.purchaseable = false;
 	}
 
 	@Override

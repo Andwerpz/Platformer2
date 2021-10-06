@@ -14,6 +14,9 @@ public abstract class Item extends Entity {
 	
 	public boolean autoPickup = false;
 	
+	public boolean purchaseable = false;	//if true, then a certain amount of gold is required to pick this item up for the first time.
+	public int itemCost;	//the amount of gold this item costs
+	
 	public abstract void onPickup();
 	public abstract void tick(Map map);
 	public abstract void draw(Graphics g);
@@ -23,5 +26,7 @@ public abstract class Item extends Entity {
 		Apple.animation = GraphicsTools.loadAnimation("/Textures/Items/Apple/apple.png", 32, 35);
 		Weapon.loadAnimations();
 	}
+	
+	
 
 }

@@ -28,6 +28,8 @@ import util.Point;
 import util.Vector;
 
 public class GamePanel {
+	
+	//this is where all the actual map updating and drawing takes place.
 
 	public Map map;
 	
@@ -238,6 +240,11 @@ public class GamePanel {
 		g.fillRect(0, 64, (int) (((double) GameManager.player.stamina / (double) GameManager.player.maxStamina) * (double) staminaBarWidth), 33);
 		
 		g.drawImage(GameManager.healthBar, 0, 0, 400, 120, null);
+		
+		g.setColor(Color.YELLOW);
+		g.setFont(new Font("Dialogue", Font.BOLD, 20));
+		
+		g.drawString("GOLD: " + GameManager.gold, 20, 200);
 		
 		//gray pause overlay
 		if(pause) {

@@ -36,8 +36,11 @@ public class Chest extends Decoration{
 			for(int i = 0; i < 1; i++) {
 				double x = (Math.random() * this.width) - this.width / 2d + this.pos.x;
 				double y = -this.height / 2d + this.pos.y; 
-				GameManager.items.add(Weapon.getWeapon((int) (Math.random() * 6), new Vector(x, y)));
-				//this.opened = true;
+				Weapon wep = Weapon.getWeapon((int) (Math.random() * 6), new Vector(x, y));
+				wep.purchaseable = true;
+				wep.itemCost = 10;
+				GameManager.items.add(wep);
+				this.opened = true;
 			}
 		}
 	}

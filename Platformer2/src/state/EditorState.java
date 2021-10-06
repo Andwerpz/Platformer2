@@ -53,6 +53,9 @@ public class EditorState extends State {
 	
 	public int tileType = 1;
 	
+	public boolean placeLoot = false;
+	public int lootRarity = 0;
+	
 	public Vector cameraPos;
 
 	public EditorState(String filepath) {
@@ -76,6 +79,7 @@ public class EditorState extends State {
 		bm.addToggleButton(new ToggleButton(10, 250, 100, 25, "Place Decoration"));	bm.toggleButtons.get(3).setToggled(false);
 		bm.addToggleButton(new ToggleButton(10, 310, 100, 25, "Rect Mode"));	bm.toggleButtons.get(4).setToggled(false);	
 		bm.addToggleButton(new ToggleButton(10, 370, 100, 25, "Fill Mode"));	bm.toggleButtons.get(5).setToggled(false);
+		bm.addToggleButton(new ToggleButton(10, 400, 100, 25, "Place Loot"));	bm.toggleButtons.get(6).setToggled(false);
 		
 		this.map = new Map();
 		this.map.drawTileGrid = true;
@@ -108,7 +112,7 @@ public class EditorState extends State {
 		int width = this.map.map[0].length;
 		int height = this.map.map.length;
 		
-		MainPanel.fout.println(this.map.playerSpawn.x + " " + this.map.playerSpawn.y);
+		MainPanel.fout.println(this.map.playerSpawn.y + " " + this.map.playerSpawn.x);
 		MainPanel.fout.println(width + " " + height);
 		
 		for(int i = 0; i < height; i++) {
@@ -126,6 +130,10 @@ public class EditorState extends State {
 		
 		for(double[] i : this.map.decorations) {
 			MainPanel.fout.println("decoration " + ((int) i[0]) + " "  + i[1] + " " + i[2]);
+		}
+		
+		for(double[] i : this.map.loot) {
+			MainPanel.fout.println("loot " + ((int) i[0]) + " " + i[1] + " " + i[2]);
 		}
 		MainPanel.fout.flush();
 		MainPanel.fout.close();
@@ -157,6 +165,7 @@ public class EditorState extends State {
 		this.placeDecoration = bm.toggleButtons.get(3).getToggled();
 		this.rectMode = bm.toggleButtons.get(4).getToggled();
 		this.fillMode = bm.toggleButtons.get(5).getToggled();
+		this.placeLoot = bm.toggleButtons.get(6).getToggled();
 		
 		double xDiff = mouse2.x - mouse.x;
 		double yDiff = mouse2.y - mouse.y;
@@ -189,6 +198,9 @@ public class EditorState extends State {
 			}
 			else if(this.placeDecoration) {
 				Decoration.getDecoration(decorationType, new Vector(mapX, mapY)).draw(g);
+			}
+			else if(this.placeLoot) {
+				//draw a string displaying the rarity of the currently held item
 			}
 			else {
 				//maybe you could draw the tile. Not needed though.
@@ -263,7 +275,6 @@ public class EditorState extends State {
 					for(int i = 0; i < this.map.decorations.size(); i++) {
 						if(this.map.decorations.get(i)[1] == mapY && this.map.decorations.get(i)[2] == mapX) {
 							this.map.decorations.remove(i);
-							System.out.println("CONTAINS");
 							break;
 						}
 					}
@@ -277,6 +288,27 @@ public class EditorState extends State {
 					}
 					if(!contains) {
 						this.map.decorations.add(new double[] {this.decorationType, mapY, mapX});
+					}
+				}
+			}
+			else if(this.placeLoot) {
+				if(this.erase) {
+					for(int i = 0; i < this.map.loot.size(); i++) {
+						if(this.map.loot.get(i)[1] == mapY && this.map.loot.get(i)[2] == mapX) {
+							this.map.loot.remove(i);
+							break;
+						}
+					}
+				}
+				else {
+					boolean contains = false;	//TODO
+					for(double[] i : this.map.loot) {
+						if(i[1] == mapY && i[2] == mapX) {
+							contains = true;
+						}
+					}
+					if(!contains) {
+						this.map.loot.add(new double[] {this.lootRarity, mapY, mapX});
 					}
 				}
 			}

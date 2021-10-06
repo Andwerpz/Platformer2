@@ -103,6 +103,15 @@ public class GameManager {
 		}
 	}
 	
+	//given a real position vector, returns the corresponding screen position.
+	//this is so that drawing things is easier.
+	public static Vector getScreenPos(Vector realPos) {
+		Vector screenPos = new Vector(realPos);
+		screenPos.x = (realPos.x * GameManager.tileSize) - GameManager.cameraOffset.x + MainPanel.WIDTH / 2;
+		screenPos.y = (realPos.y * GameManager.tileSize) - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2;
+		return screenPos;
+	}
+	
 	public void tick(java.awt.Point mouse) {}
 	
 	public void draw(Graphics g, java.awt.Point mouse) {

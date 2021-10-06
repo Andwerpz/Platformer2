@@ -35,7 +35,7 @@ public class HuntingRifle extends Weapon {
 	}
 	
 	public static void loadAnimations() {
-		HuntingRifle_Bullet.animation = GraphicsTools.loadAnimation("/Textures/Bullets/shotgun pellet.png", 5, 5);
+		HuntingRifle_Bullet.animation = GraphicsTools.loadAnimation("/Textures/Bullets/hunting rifle bullet.png", 21, 21);
 	}
 
 }
@@ -52,7 +52,7 @@ class HuntingRifle_Bullet extends Bullet {
 	
 	@Override
 	public void draw(Graphics g) {
-		this.drawSprite(animation.get(0), g);
+		this.drawPointAtSprite(animation.get(0), g, this.vel, 1.5, 1.5);
 	}
 	
 	@Override

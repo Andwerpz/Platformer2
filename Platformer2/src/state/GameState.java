@@ -145,6 +145,17 @@ public class GameState extends State{
 				this.map.decorations.add(new double[] {decorationType, row, col});
 			}
 			
+			//importing loot data
+			for(double[] d : nextTile.loot) {
+				int lootRarity = (int) d[0];
+				double row = d[1];
+				double col = d[2];
+				
+				col += offset;
+				
+				this.map.loot.add(new double[] {lootRarity, row, col});
+			}
+			
 			offset += nextTile.map[0].length + 1;
 			
 			if(i != tiles.size() - 1) {
@@ -158,13 +169,18 @@ public class GameState extends State{
 				}
 			}
 		}
-		
 		this.map.loadMapTileTextures();
 		this.map.generateNearBackground(0);
-		
 		this.map.playerSpawn = startTile.playerSpawn;
 		this.wavePauseTimer = this.wavePauseTime;;
-		this.gp = new GamePanel(this.map);
+		
+		
+		this.gp = new GamePanel(this.map);	//resets all entities
+		
+		this.map.placeLoot();
+		
+		
+		
 		
 		if(this.gp == null) {
 			System.out.println("NULL");

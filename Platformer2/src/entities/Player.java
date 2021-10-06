@@ -244,6 +244,14 @@ public class Player extends Entity{
 		this.equippedWeapon.drawSprite(rotatedImg, g, newWidth, newHeight);
 	}
 	
+	public void swapWeapon(Weapon wep) {
+		if(this.equippedWeapon != null) {
+			this.equippedWeapon.onDrop(this.pos);
+		}
+		GameManager.items.remove(wep);
+		this.equippedWeapon = wep;
+	}
+	
 	public void mousePressed(MouseEvent arg0) {	
 		this.mouseAttack = true;
 		//this.attack(new Point(mouse.x, mouse.y));
@@ -273,11 +281,8 @@ public class Player extends Entity{
 			for(int i = 0; i < GameManager.items.size(); i++) {
 				Item item = GameManager.items.get(i);
 				if(item instanceof Weapon && item.collision(this)) {
-					if(this.equippedWeapon != null) {
-						this.equippedWeapon.onDrop(this.pos);
-					}
-					GameManager.items.remove(i);
-					this.equippedWeapon = (Weapon) item;
+					Weapon wep = (Weapon) item;
+					wep.onPickup();
 					break;
 				}
 			}

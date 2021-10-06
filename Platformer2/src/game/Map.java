@@ -24,11 +24,14 @@ import decorations.Tree;
 import enemy.Enemy;
 import enemy.Slime;
 import entities.Player;
+import item.Item;
 import main.MainPanel;
 import state.GameManager;
 import util.GraphicsTools;
 import util.Point;
 import util.Vector;
+import weapon.AK47;
+import weapon.Weapon;
 
 public class Map {
 	
@@ -46,6 +49,8 @@ public class Map {
 	public int selectedWave = 0;
 	
 	public ArrayList<double[]> decorations;	//id and location info for decorations within map
+	public ArrayList<double[]> loot;	//location of loot and category: common, uncommon, rare, epic, legendary. 
+	//When map is loaded, random loot drops from the given pool will be added to the map at the specified locations
 	
 	public static HashMap<Integer, Integer> tileTextureMap;
 	public static ArrayList<BufferedImage> tileTextures;
@@ -68,6 +73,7 @@ public class Map {
 		this.enemyWaves.add(new ArrayList<double[]>());
 		
 		this.decorations = new ArrayList<double[]>();
+		this.loot = new ArrayList<double[]>();
 		
 		this.playerSpawn = new Vector(0, 0);
 		
@@ -81,6 +87,7 @@ public class Map {
 		this.enemyWaves.add(new ArrayList<double[]>());
 		
 		this.decorations = new ArrayList<double[]>();
+		this.loot = new ArrayList<double[]>();
 		
 		this.playerSpawn = new Vector(0, 0);
 		
@@ -325,10 +332,10 @@ public class Map {
 			fin = new BufferedReader(new InputStreamReader(is));
 			
 			StringTokenizer st = new StringTokenizer(fin.readLine());
-			double spawnX = Double.parseDouble(st.nextToken());	//row, col
-			double spawnY = Double.parseDouble(st.nextToken());
+			double spawnRow = Double.parseDouble(st.nextToken());	//row, col
+			double spawnCol = Double.parseDouble(st.nextToken());
 			
-			this.playerSpawn = new Vector(spawnX, spawnY);
+			this.playerSpawn = new Vector(spawnCol, spawnRow);
 			
 			st = new StringTokenizer(fin.readLine());
 			int width = Integer.parseInt(st.nextToken());
@@ -362,6 +369,13 @@ public class Map {
 						double col = Double.parseDouble(st.nextToken());
 						
 						this.decorations.add(new double[] {decorationType, row, col});
+					}
+					else if(type.equals("loot")) {
+						double rarity = Double.parseDouble(st.nextToken());
+						double row = Double.parseDouble(st.nextToken());
+						double col = Double.parseDouble(st.nextToken());
+						
+						this.loot.add(new double[] {rarity, row, col});
 					}
 					else {
 						
@@ -427,6 +441,15 @@ public class Map {
 		}
 		this.selectedWave ++;
 		return false;
+	}
+	
+	public void placeLoot() {
+		for(double[] i : this.loot) {
+			Item nextLoot = Weapon.getWeapon((int) (Math.random() * 6), new Vector(i[2], i[1]));
+			nextLoot.purchaseable = true;
+			nextLoot.itemCost = 10;
+			GameManager.items.add(nextLoot);
+		}
 	}
 	
 	public ArrayList<Decoration> getDecorations() {
@@ -550,6 +573,15 @@ public class Map {
 			double y = i[1];
 			
 			Decoration.getDecoration(type, new Vector(x, y)).draw(g);
+		}
+		
+		for(double[] i : this.loot) {
+			int rarity = (int) i[0];
+			double x = i[2];
+			double y = i[1];
+			
+			AK47 drawLoot = new AK47(new Vector(x, y));
+			drawLoot.draw(g);
 		}
 		
 		int minX = (int) (GameManager.cameraOffset.x / GameManager.tileSize - (MainPanel.WIDTH / 2) / GameManager.tileSize);
