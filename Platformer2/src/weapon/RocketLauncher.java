@@ -3,6 +3,7 @@ package weapon;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import game.Map;
 import particles.Smoke;
@@ -28,17 +29,18 @@ public class RocketLauncher extends Weapon {
 		
 		this.id = 5;
 	}
-
-	@Override
-	public void attack(Vector pos, Vector attackDir) {
-		Vector nextPos = new Vector(pos);
-		attackDir.setMagnitude(2.5);
-		nextPos.addVector(attackDir);
-		GameManager.projectiles.add(new RocketLauncher_Rocket(pos, attackDir));
-	}
 	
 	public static void loadAnimations() {
 		RocketLauncher_Rocket.animation = GraphicsTools.loadAnimation("/Textures/Bullets/pixel missile small.png", 32, 15);
+	}
+
+	@Override
+	public ArrayList<Bullet> getBullets(Vector pos, Vector attackDir) {
+		Vector nextPos = new Vector(pos);
+		attackDir.setMagnitude(2.5);
+		nextPos.addVector(attackDir);
+		
+		return new ArrayList<Bullet>(Arrays.asList(new RocketLauncher_Rocket(pos, attackDir)));
 	}
 
 }

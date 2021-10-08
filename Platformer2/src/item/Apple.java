@@ -5,8 +5,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import entities.Hitbox;
-import entities.Player;
 import game.Map;
+import player.Player;
 import state.GameManager;
 import util.Vector;
 
@@ -17,11 +17,7 @@ public class Apple extends Item {
 	public int animationFrame;
 	
 	public Apple(Vector pos) {
-		this.pos = new Vector(pos);
-		
-		this.width = 1;
-		this.height = 1;
-		this.envHitbox = new Hitbox(width, height);
+		super(pos, new Vector(0, 0), 1, 1);
 		
 		this.autoPickup = true;
 		this.purchaseable = false;

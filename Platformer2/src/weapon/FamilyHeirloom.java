@@ -2,6 +2,8 @@ package weapon;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import main.MainPanel;
 import projectiles.Bullet;
@@ -25,17 +27,18 @@ public class FamilyHeirloom extends Weapon{
 		
 		this.id = 3;
 	}
-
-	@Override
-	public void attack(Vector pos, Vector attackDir) {
-		Vector nextPos = new Vector(pos);
-		attackDir.setMagnitude(2.5);
-		nextPos.addVector(attackDir);
-		GameManager.projectiles.add(new FamilyHeirloom_Bullet(nextPos, attackDir));
-	}
 	
 	public static void loadAnimations() {
 		FamilyHeirloom_Bullet.sprite = GraphicsTools.loadImage("/Textures/Bullets/bullet long small.png");
+	}
+
+	@Override
+	public ArrayList<Bullet> getBullets(Vector pos, Vector attackDir) {
+		Vector nextPos = new Vector(pos);
+		attackDir.setMagnitude(2.5);
+		nextPos.addVector(attackDir);
+		
+		return new ArrayList<Bullet>(Arrays.asList(new FamilyHeirloom_Bullet(nextPos, attackDir)));
 	}
 
 }

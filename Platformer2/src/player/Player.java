@@ -1,4 +1,4 @@
-package entities;
+package player;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -6,8 +6,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import entities.Entity;
+import entities.Hitbox;
 import game.Map;
+import item.Buff;
 import item.Item;
 import main.Main;
 import main.MainPanel;
@@ -28,18 +32,22 @@ import weapon.Weapon;
 
 public class Player extends Entity{
 	
-	public int baseHealthUpgrades;
+	public BuffManager buffManager;
 	
 	public static ArrayList<BufferedImage> animationIdle;
 	public static int idleFrameInterval = 1;
 	public int idleFrame = 0;
 	
 	public int health;
-	public int maxHealth = 100;
+	public int baseMaxHealth = 100;	//before buffs
+	public int maxHealth = 100; 	//after buffs
 	
 	public int stamina;
 	public int maxStamina = 100;
 	public int staminaRegenDelay = 30;
+	
+	public double critChance = 0.1;
+	public int critMultiplier = 2;
 	
 	public boolean left = false;
 	public boolean right = false;
@@ -58,9 +66,14 @@ public class Player extends Entity{
 	
 	public boolean pickUpWeapon = false;
 	
-	public Weapon equippedWeapon = new RocketLauncher(new Vector(0, 0));
+	public Weapon equippedWeapon = new AK47(new Vector(0, 0));
 	
 	public java.awt.Point mouse = new java.awt.Point(0, 0);
+	
+	//weapon ideas:
+	//air shotgun: pushes back enemies
+	//black hole launcher: wherever it lands, it makes something that drags enemies towards it
+	//enemy primer: gotta come up with a better name, it will prime enemies so that damage taken in the future is doubled.
 	
 	public Player(Vector pos) {
 		super();
@@ -82,7 +95,12 @@ public class Player extends Entity{
 		
 		this.timeSinceLastAttack = 0;
 		
-		this.baseHealthUpgrades = 0;
+		this.buffManager = new BuffManager(this);
+	}
+	
+	//resets the players stats to their base levels.
+	public void resetBuffs() {
+		
 	}
 	
 	public static void loadTextures() {
@@ -103,7 +121,7 @@ public class Player extends Entity{
 			this.immune = true;
 			this.immuneTimeLeft = this.immuneTime;
 			
-			GameManager.particles.add(new DamageNumber(damage, this.pos));
+			GameManager.particles.add(new DamageNumber(damage, this.pos, false));
 			
 			this.health -= damage;
 			
@@ -157,31 +175,37 @@ public class Player extends Entity{
 	public void attack() {
 		//equipped a gun
 		if(this.equippedWeapon != null) {
+			int multishot = 1 + this.buffManager.numBuffs.getOrDefault(BuffManager.MULTISHOT, 0);
 			if(this.stamina >= this.equippedWeapon.attackStaminaCost && (this.mouseAttack || this.leftAttack || this.rightAttack) && this.timeSinceLastAttack >= this.equippedWeapon.attackDelay) {
 				this.timeSinceLastAttack = 0;
 				this.stamina -= this.equippedWeapon.attackStaminaCost;
-				if(this.mouseAttack) {
-					
-					Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
-					
-					Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));
-					
-					this.equippedWeapon.attack(this.pos, attackVector);
-					//this.ma.Slash(pos, new Point(mouse.x, mouse.y));
+				for(int i = 0; i < multishot; i++) {
+					if(this.mouseAttack) {
+						
+						Point center = new Point((pos.x) * GameManager.tileSize + MainPanel.WIDTH / 2 - GameManager.cameraOffset.x, (pos.y) * GameManager.tileSize + MainPanel.HEIGHT / 2 - GameManager.cameraOffset.y);
+						
+						Vector attackVector = new Vector(center, new Point(mouse.x, mouse.y));
+						
+						this.equippedWeapon.attack(this.pos, attackVector);
+						//this.ma.Slash(pos, new Point(mouse.x, mouse.y));
+					}
+					else if(this.leftAttack) {
+						this.equippedWeapon.attack(this.pos, new Vector(-1, 0));
+						//this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
+					}
+					else {
+						this.equippedWeapon.attack(this.pos, new Vector(1, 0));
+						//this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
+					}
 				}
-				else if(this.leftAttack) {
-					this.equippedWeapon.attack(this.pos, new Vector(-1, 0));
-					//this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
-				}
-				else {
-					this.equippedWeapon.attack(this.pos, new Vector(1, 0));
-					//this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
-				}
+				
 				
 			}
 		}
-		//do a melee attack
+		//do a attack
 		else {
+			
+			
 			if(this.stamina >= 10 && (this.mouseAttack || this.leftAttack || this.rightAttack) && this.timeSinceLastAttack >= 30) {
 				this.timeSinceLastAttack = 0;
 				this.stamina -= 10;
@@ -198,12 +222,14 @@ public class Player extends Entity{
 					//this.equippedWeapon.attack(this.pos, new Vector(-1, 0));
 					this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 - 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
 				}
-				else {
+				else if(this.rightAttack){
 					//this.equippedWeapon.attack(this.pos, new Vector(1, 0));
 					this.ma.Slash(pos, new Point((this.pos.x) * GameManager.tileSize - GameManager.cameraOffset.x + MainPanel.WIDTH / 2 + 100, (this.pos.y) * GameManager.tileSize - GameManager.cameraOffset.y + MainPanel.HEIGHT / 2));
 				}
 				
 			}
+			
+			
 		}
 		
 		
@@ -283,7 +309,12 @@ public class Player extends Entity{
 				if(item instanceof Weapon && item.collision(this)) {
 					Weapon wep = (Weapon) item;
 					wep.onPickup();
-					break;
+					return;
+				}
+				if(item instanceof Buff && item.collision(this)) {
+					Buff buff = (Buff) item;
+					buff.onPickup();
+					return;
 				}
 			}
 		}

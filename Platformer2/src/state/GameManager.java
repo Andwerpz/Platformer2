@@ -16,7 +16,6 @@ import enemy.Enemy;
 import enemy.Slime;
 import entities.Entity;
 import entities.Hitbox;
-import entities.Player;
 import game.Map;
 import game.TilesetManager;
 import item.Coin;
@@ -25,6 +24,7 @@ import main.MainPanel;
 import melee.MeleeAttack;
 import particles.DamageNumber;
 import particles.Particle;
+import player.Player;
 import projectiles.Projectile;
 import util.GraphicsTools;
 import util.Point;
@@ -45,7 +45,7 @@ public class GameManager {
 	
 	public static Vector cameraOffset = new Vector(0, 0);	//or alternatively, you could just use inverse of the player position
 	
-	public static int gold = 0;	//should find a better place to put this info
+	public static int gold = 9999999;	//should find a better place to put this info
 	//maybe make an object to hold all the players stuff. 
 	
 	public static State curState;

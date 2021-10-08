@@ -38,7 +38,7 @@ public class TilesetManager {
 				out.add(shopTiles.get((int) (Math.random() * shopTiles.size())));
 			}
 			else {
-				out.add(levelTiles.get((int) (Math.random() * levelTiles.size())));
+				out.add(shopTiles.get((int) (Math.random() * shopTiles.size())));
 			}
 		}
 		out.add(endTiles.get((int) (Math.random() * endTiles.size())));

@@ -58,7 +58,7 @@ public class Tree extends Decoration {
 				for(int i = 0; i < 10; i++) {
 					double x = (Math.random() * this.width) - this.width / 2d + this.pos.x;
 					double y = (Math.random() * this.height) - this.height / 2d + this.pos.y; 
-					GameManager.particles.add(new DamageNumber(1, new Vector(x, y)));
+					GameManager.particles.add(new DamageNumber(1, new Vector(x, y), false));
 				}
 			}
 		}

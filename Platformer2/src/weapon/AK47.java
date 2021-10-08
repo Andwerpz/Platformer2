@@ -3,6 +3,7 @@ package weapon;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import projectiles.Bullet;
 import projectiles.LargeExplosion;
@@ -25,17 +26,18 @@ public class AK47 extends Weapon {
 		this.attackDelay = 4;
 		this.id = 2;
 	}
-
-	@Override
-	public void attack(Vector pos, Vector attackDir) {
-		Vector nextPos = new Vector(pos);
-		attackDir.setMagnitude(2.5);
-		nextPos.addVector(attackDir);
-		GameManager.projectiles.add(new AK47_Bullet(nextPos, attackDir));
-	}
 	
 	public static void loadAnimations() {
 		AK47_Bullet.animation = GraphicsTools.loadAnimation("/Textures/Bullets/shotgun pellet.png", 5, 5);
+	}
+
+	@Override
+	public ArrayList<Bullet> getBullets(Vector pos, Vector attackDir) {
+		Vector nextPos = new Vector(pos);
+		attackDir.setMagnitude(2.5);
+		nextPos.addVector(attackDir);
+		
+		return new ArrayList<Bullet>(Arrays.asList(new AK47_Bullet(nextPos, attackDir)));
 	}
 
 }

@@ -7,14 +7,22 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import entities.Hitbox;
-import entities.Player;
 import game.Map;
 import item.Item;
+import player.Player;
+import projectiles.Bullet;
 import state.GameManager;
 import util.GraphicsTools;
 import util.Vector;
 
 public abstract class Weapon extends Item {
+	
+	//weapon elements;
+	public static final int FIRE = 0;
+	public static final int ICE = 1;
+	public static final int ELECTRICITY = 2;
+	public static final int POISON = 3;
+	public static final int NATURE = 4;
 	
 	//rarities:
 	//common	#ffffff	white	
@@ -32,10 +40,7 @@ public abstract class Weapon extends Item {
 	public int attackDelay = 20;
 	
 	public Weapon(Vector pos) {
-		this.pos = new Vector(pos);
-		this.width = 2;
-		this.height = 2;
-		this.envHitbox = new Hitbox(width, height);
+		super(pos, new Vector(0, 0), 2, 2);
 	}
 	
 	public static Weapon getWeapon(int id, Vector pos) {
@@ -74,7 +79,14 @@ public abstract class Weapon extends Item {
 		Weapon.sprites = GraphicsTools.loadAnimation("/Textures/Weapons/weapon sprites.png", 32, 32);
 	}
 	
-	public abstract void attack(Vector pos, Vector attackDir);	//create the bullets that are fired from the attack
+	public abstract ArrayList<Bullet> getBullets(Vector pos, Vector attackDir); //create the bullets that are fired from the attack
+	
+	public void attack(Vector pos, Vector attackDir) {
+		ArrayList<Bullet> bullets = this.getBullets(pos, attackDir);
+		for(Bullet b : bullets) {
+			GameManager.projectiles.add(b);
+		}
+	}
 	
 	public void tick(Map map) {
 		this.move(map);
@@ -88,21 +100,7 @@ public abstract class Weapon extends Item {
 			this.drawHitboxes(g);
 		}
 		
-		//draw cost indicator above item
-		if(this.purchaseable) {
-			String costString = this.itemCost + "g";
-			Font font = new Font("Dialogue", Font.PLAIN, 12);
-			int stringWidth = GraphicsTools.calculateTextWidth(costString, font);
-			Vector labelPos = new Vector(this.pos);
-			labelPos.y -= this.height / 2;
-			Vector labelScreenPos = GameManager.getScreenPos(labelPos);
-			labelScreenPos.y -= font.getSize();
-			
-			g.setFont(font);
-			g.setColor(new Color(Integer.parseInt("fed752", 16)));
-			
-			g.drawString(costString, (int) (labelScreenPos.x - stringWidth / 2d), (int) labelScreenPos.y);
-		}
+		this.drawCostIndicator(g);
 	}
 	
 	public void onDrop(Vector pos) {

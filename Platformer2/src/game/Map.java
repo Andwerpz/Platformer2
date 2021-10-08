@@ -23,9 +23,10 @@ import decorations.Decoration;
 import decorations.Tree;
 import enemy.Enemy;
 import enemy.Slime;
-import entities.Player;
+import item.Buff;
 import item.Item;
 import main.MainPanel;
+import player.Player;
 import state.GameManager;
 import util.GraphicsTools;
 import util.Point;
@@ -445,10 +446,12 @@ public class Map {
 	
 	public void placeLoot() {
 		for(double[] i : this.loot) {
-			Item nextLoot = Weapon.getWeapon((int) (Math.random() * 6), new Vector(i[2], i[1]));
-			nextLoot.purchaseable = true;
-			nextLoot.itemCost = 10;
-			GameManager.items.add(nextLoot);
+//			Item nextLoot = Weapon.getWeapon((int) (Math.random() * 6), new Vector(i[2], i[1]));
+//			nextLoot.purchaseable = true;
+//			nextLoot.itemCost = 10;
+//			GameManager.items.add(nextLoot);
+			
+			GameManager.items.add(new Buff(new Vector(i[2], i[1])));
 		}
 	}
 	

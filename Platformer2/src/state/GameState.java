@@ -14,7 +14,6 @@ import button.ButtonManager;
 import decorations.Decoration;
 import enemy.Enemy;
 import enemy.Slime;
-import entities.Player;
 import game.GamePanel;
 import game.Map;
 import game.TilesetManager;
@@ -23,6 +22,7 @@ import item.Item;
 import main.MainPanel;
 import melee.MeleeAttack;
 import particles.Particle;
+import player.Player;
 import util.GraphicsTools;
 import util.Vector;
 import util.Point;
@@ -110,6 +110,8 @@ public class GameState extends State{
 			
 		}
 		
+		width --;
+		
 		map.map = new int[height][width];
 		map.mapTileTexture = new BufferedImage[height][width];
 		
@@ -184,7 +186,7 @@ public class GameState extends State{
 	//if there are more layers, then just switch the layer, else, send them back to the hub.
 	public void nextLayer() {
 		if(this.levelsRemaining >= 2) {
-			GameManager.transition(new GameState(this.levelsRemaining - 1), "Levels Remaining: " + (this.levelsRemaining - 1));
+			GameManager.transition(new BuffState(this.levelsRemaining - 1), "Levels Remaining: " + (this.levelsRemaining - 1));
 		}
 		else {
 			GameManager.transition(new HubState(), "Depth Cleared");

@@ -37,7 +37,7 @@ public class Elevator extends Decoration{
 				gs.nextLayer();
 			}
 			else {
-				GameManager.transition(new GameState(1), "downloading viruses");
+				GameManager.transition(new GameState(2), "downloading viruses");
 			}
 		}
 	}

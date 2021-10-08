@@ -22,7 +22,7 @@ public abstract class Entity {
 	public Vector vel;
 	public Vector pos;
 	
-	public double cushion = 0.001;	//to facilitate smooth movement
+	public static double cushion = 0.001;	//to facilitate smooth movement
 	
 	public double acceleration = 0.1;	//units per frame. For now, units are map grid cells
 	public double jumpVel = 0.35;	//amount of impulse when the player jumps

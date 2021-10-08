@@ -19,14 +19,7 @@ public class Coin extends Item {
 	public int animationFrame;
 	
 	public Coin(Vector pos) {
-		super();
-		
-		this.width = 0.8;
-		this.height = 0.8;
-		
-		this.envHitbox = new Hitbox(width, height);
-		this.pos = new Vector(pos);	this.pos.y -= this.cushion * 2;
-		this.vel = new Vector((Math.random() - 0.5) * 0.1, -(Math.random() * 0.2) - 0.2);
+		super(new Vector(pos.x, pos.y - (cushion * 2)), new Vector((Math.random() - 0.5) * 0.1, -(Math.random() * 0.2) - 0.2), 0.8, 0.8);
 		
 		this.frictionInAir = false;
 		

@@ -34,6 +34,11 @@ public abstract class Enemy extends Entity{
 	
 	public double healthBarHeight = 0.3;
 	
+	public boolean onFire = false;	//if is on fire, then enemy will take damage every second proportional to the players current fire buff level
+	public boolean poisoned = false;	//if is poisoned, then enemy will take percentage max health damage. If damage is less than 1, then it is rounded up to 1.
+	public boolean slowed = false;	//if slowed, then friction will be increased for the enemy, and other movement related things will be slowed.
+	public boolean frozen = false;	//if frozen, then the enemy will stop being ticked. Damage will still register though.
+	
 	public static Enemy getEnemy(int type, Vector pos) {
 		switch(type) {
 		case SLIME:
@@ -56,6 +61,9 @@ public abstract class Enemy extends Entity{
 		
 		if(this.envHitbox.collision(this.pos, p.envHitbox, p.pos)) {
 			
+			boolean crit = Math.random() < GameManager.player.critChance;
+			int damage = crit? p.damage * GameManager.player.critMultiplier : p.damage;
+			
 			Vector impulseVector = new Vector(0, 0);
 			
 			if(p instanceof Explosion) {
@@ -73,10 +81,10 @@ public abstract class Enemy extends Entity{
 			this.pos.y -= this.cushion * 2;
 			attackHit = true;
 			
-			this.health -= p.damage;
+			this.health -= damage;
 			
 			//add a new damage number particle
-			GameManager.particles.add(new DamageNumber(p.damage, this.pos));
+			GameManager.particles.add(new DamageNumber(damage, this.pos, crit));
 			
 			//sets up immune frames
 			//maybe enemies don't need immunity frames.

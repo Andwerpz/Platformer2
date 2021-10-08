@@ -3,6 +3,7 @@ package weapon;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import projectiles.Bullet;
 import projectiles.LargeExplosion;
@@ -25,17 +26,18 @@ public class HuntingRifle extends Weapon {
 		this.attackDelay = 20;
 		this.id = 4;
 	}
-
-	@Override
-	public void attack(Vector pos, Vector attackDir) {
-		Vector nextPos = new Vector(pos);
-		attackDir.setMagnitude(2.5);
-		nextPos.addVector(attackDir);
-		GameManager.projectiles.add(new HuntingRifle_Bullet(nextPos, attackDir));
-	}
 	
 	public static void loadAnimations() {
 		HuntingRifle_Bullet.animation = GraphicsTools.loadAnimation("/Textures/Bullets/hunting rifle bullet.png", 21, 21);
+	}
+
+	@Override
+	public ArrayList<Bullet> getBullets(Vector pos, Vector attackDir) {
+		Vector nextPos = new Vector(pos);
+		attackDir.setMagnitude(2.5);
+		nextPos.addVector(attackDir);
+		
+		return new ArrayList<Bullet>(Arrays.asList(new HuntingRifle_Bullet(nextPos, attackDir)));
 	}
 
 }
