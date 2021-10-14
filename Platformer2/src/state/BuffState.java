@@ -22,7 +22,7 @@ public class BuffState extends State{
 	
 	public static int buttonSize = 200;
 	
-	public Color backgroundColor = new Color(0, 53, 122);
+	public Color backgroundColor = new Color(0, 33, 92);
 	
 	public Button buff1;
 	public Button buff2;
@@ -63,24 +63,34 @@ public class BuffState extends State{
 		buff2.draw(g);
 		buff3.draw(g);
 		
-		Font font = new Font("Dialogue", Font.PLAIN, 20);
+		Font descriptionFont = new Font("Georgia", Font.PLAIN, 30);
+		Font titleFont = new Font("Georgia", Font.BOLD, 60);
+		String buffTitle = "";
 		String buffDescription = "";
 		
 		if(buff1.contains(mouse)) {
 			buffDescription = BuffManager.buffDescriptions.get(buffs.get(0));
+			buffTitle = BuffManager.buffTitles.get(buffs.get(0));
 		}
 		else if(buff2.contains(mouse)) {
 			buffDescription = BuffManager.buffDescriptions.get(buffs.get(1));
+			buffTitle = BuffManager.buffTitles.get(buffs.get(1));
 		}
 		else if(buff3.contains(mouse)) {
 			buffDescription = BuffManager.buffDescriptions.get(buffs.get(2));
+			buffTitle = BuffManager.buffTitles.get(buffs.get(2));
 		}
 		
-		int textWidth = GraphicsTools.calculateTextWidth(buffDescription, font);
+		int descriptionWidth = GraphicsTools.calculateTextWidth(buffDescription, descriptionFont);
+		int titleWidth = GraphicsTools.calculateTextWidth(buffTitle, titleFont);
 		
 		g.setColor(Color.WHITE);
-		g.setFont(font);
-		g.drawString(buffDescription, MainPanel.WIDTH / 2 - textWidth / 2, MainPanel.HEIGHT - (MainPanel.HEIGHT / 5));
+		
+		g.setFont(descriptionFont);
+		g.drawString(buffDescription, MainPanel.WIDTH / 2 - descriptionWidth / 2, MainPanel.HEIGHT - (MainPanel.HEIGHT / 5));
+		
+		g.setFont(titleFont);
+		g.drawString(buffTitle, MainPanel.WIDTH / 2 - titleWidth / 2, MainPanel.HEIGHT - (MainPanel.HEIGHT / 5 + titleFont.getSize() + 20));
 	}
 
 	@Override

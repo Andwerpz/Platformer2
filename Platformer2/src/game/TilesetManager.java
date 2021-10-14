@@ -20,6 +20,7 @@ public class TilesetManager {
 		
 		
 		levelTiles.add("slime cave");
+		levelTiles.add("slime cave parkour");
 		
 		shopTiles.add("slime cave loot");
 		
@@ -38,7 +39,7 @@ public class TilesetManager {
 				out.add(shopTiles.get((int) (Math.random() * shopTiles.size())));
 			}
 			else {
-				out.add(shopTiles.get((int) (Math.random() * shopTiles.size())));
+				out.add(levelTiles.get((int) (Math.random() * levelTiles.size())));
 			}
 		}
 		out.add(endTiles.get((int) (Math.random() * endTiles.size())));

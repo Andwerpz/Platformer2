@@ -2,3 +2,5 @@
 2 pixel_stone.png pixel_stone_side.png pixel_stone_corner.png
 3 pixel_dirt.png pixel_dirt_side.png pixel_dirt_corner.png
 4 pixel_wood_tile.png pixel_wood_side.png pixel_wood_corner.png
+5 pixel_stone_brick_1.png blank.png blank.png
+6 pixel_stone_brick_2.png blank.png blank.png

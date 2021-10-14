@@ -32,6 +32,12 @@ import weapon.Weapon;
 
 public class Player extends Entity{
 	
+	public static final int BASE_HEALTH = 100;
+	public static final int BASE_STAMINA = 100;
+	public static final double BASE_CRIT_CHANCE = 0.1;
+	public static final int BASE_CRIT_MULTIPlIER = 2;
+	public static final int BASE_IMMUNE_FRAMES = 30;
+	
 	public BuffManager buffManager;
 	
 	public static ArrayList<BufferedImage> animationIdle;
@@ -39,7 +45,6 @@ public class Player extends Entity{
 	public int idleFrame = 0;
 	
 	public int health;
-	public int baseMaxHealth = 100;	//before buffs
 	public int maxHealth = 100; 	//after buffs
 	
 	public int stamina;

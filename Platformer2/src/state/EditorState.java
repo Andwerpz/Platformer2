@@ -60,6 +60,66 @@ public class EditorState extends State {
 
 	public EditorState(String filepath) {
 				
+		
+		
+		this.map = new Map();
+		this.map.drawTileGrid = true;
+		this.map.editing = true;
+		
+		int width = 60;
+		int height = 60;
+		
+		this.map.map = new int[height][width];
+		
+		this.map.mapTileTexture = new BufferedImage[map.map.length][map.map[0].length];
+		
+		this.map.loadMapTileTextures();
+		
+		this.map.readFromFile(filepath);
+		//this.map.calculateMapLight();
+		
+		init();
+		
+	}
+	
+	public EditorState(int width) {
+		this.map = new Map();
+		this.map.drawTileGrid = true;
+		this.map.editing = true;
+		
+		int height = 60; //standard tile height
+		
+		this.map.map = new int[height][width];
+		this.map.mapTileTexture = new BufferedImage[height][width];
+		
+		//filling in basic tile template
+		for(int i = 0; i < width; i++) {
+			if(i <= 3 || i >= width - 4) {
+				for(int j = 0; j < height / 2 - 3; j++) {
+					this.map.map[j][i] = 2;
+				}
+				for(int j = height / 2 + 3; j < height; j++) {
+					this.map.map[j][i] = 2;
+				}
+			}
+			else {
+				for(int j = 0; j < 4; j++) {
+					this.map.map[j][i] = 2;
+				}
+				for(int j = height - 4; j < height; j++) {
+					this.map.map[j][i] = 2;
+				}
+			}
+		}
+		
+		this.map.loadMapTileTextures();
+		
+		init();
+	}
+	
+	
+	@Override
+	public void init() {
 		bm = new ButtonManager();
 		
 		bm.addButton(new Button(10, 10, 100, 25, "Save Map"));
@@ -81,30 +141,8 @@ public class EditorState extends State {
 		bm.addToggleButton(new ToggleButton(10, 370, 100, 25, "Fill Mode"));	bm.toggleButtons.get(5).setToggled(false);
 		bm.addToggleButton(new ToggleButton(10, 400, 100, 25, "Place Loot"));	bm.toggleButtons.get(6).setToggled(false);
 		
-		this.map = new Map();
-		this.map.drawTileGrid = true;
-		this.map.editing = true;
-		
-		int width = 60;
-		int height = 60;
-		
-		this.map.map = new int[height][width];
-		
-		this.map.mapTileTexture = new BufferedImage[map.map.length][map.map[0].length];
-		
-		this.map.loadMapTileTextures();
-		
-		this.map.readFromFile(filepath);
-		//this.map.calculateMapLight();
-		
 		this.cameraPos = new Vector(this.map.map[0].length / 2, this.map.map.length / 2);
 		this.cameraOffset = new Vector((int) ((cameraPos.x) * GameManager.tileSize), (int) ((cameraPos.y) * GameManager.tileSize));
-		
-	}
-	
-	@Override
-	public void init() {
-		
 	}
 
 	

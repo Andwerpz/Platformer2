@@ -9,35 +9,20 @@ import state.GameManager;
 
 public class BuffManager {
 	
-	//buff ideas:
-	//multishot
-	//bullet bounce
-	//crit chance / damage. Will require implementation of crit system
-	//max health
-	//max stamina / stamina regen
-	//shop price decrease
-	//damage resistance
-	//+attack speed
-	//elemental resistance and buffs: fire, ice, electricity, poison, nature
-	//fire: dmg over time. buff will increase dmg over time
-	//ice: slows enemies. buff will immobilize enemies
-	//electricity: chain damage. buff will increase the distance between enemies that it can chain to, and increases the damage
-	//poison: percentage max health damage. buff will make the damage last longer
-	//nature: lifesteal per enemy. buff will increase the amount of lifesteal
-	
 	public static final int MULTISHOT = 0;
 	public static final int BULLET_BOUNCE = 1;
 	public static final int CRIT_CHANCE = 2;
 	public static final int CRIT_DAMAGE = 3;
 	public static final int MAX_HEALTH = 4;
 	public static final int MAX_STAMINA = 5;
+	public static final int IMMUNE_FRAMES = 6;
 	public static final int SHOP_PRICE_DECREASE = 7;
 	public static final int DAMAGE_RESISTANCE = 8;
-	public static final int FIRE = 9;
-	public static final int ICE = 10;
-	public static final int ELECTRICITY = 11;
-	public static final int POISON = 12;
-	public static final int NATURE = 13;
+	public static final int FIRE = 9;	//damage over time, increase dmg on upgrade
+	public static final int ICE = 10;	//enemy slows down, immobilized on upgrade
+	public static final int ELECTRICITY = 11;	//chain damage between enemies, upgrade will either increase range of chain, or increase num chained enemies
+	public static final int POISON = 12;	//percentage max health damage over time, increase time of damage
+	public static final int NATURE = 13;	//lifesteal for every enemy killed with nature dmg, upgrade will increase the amount of health gained from kill
 	
 	public static HashMap<Integer, String> buffDescriptions = new HashMap<Integer, String>() {{
 		put(MULTISHOT, "Makes more bullets shoot out of your guns");
@@ -46,6 +31,7 @@ public class BuffManager {
 		put(CRIT_DAMAGE, "Increases your critical hit damage");
 		put(MAX_HEALTH, "Increases your max health by " + HEALTH_PER_UPGRADE);
 		put(MAX_STAMINA, "Increases your max stamina by " + STAMINA_PER_UPGRADE);
+		put(IMMUNE_FRAMES, "Increases the immunity time after being hit");
 		put(SHOP_PRICE_DECREASE, "Decreases all item costs");
 		put(DAMAGE_RESISTANCE, "Grants you +1 damage resistance");
 		put(FIRE, "Makes you more resistant to fire, and all your fire imbued attacks become stronger");
@@ -55,8 +41,26 @@ public class BuffManager {
 		put(NATURE, "Makes you more resistant to nature, and all your nature imbued attacks become stronger");
 	}};
 	
+	public static HashMap<Integer, String> buffTitles = new HashMap<Integer, String>() {{
+		put(MULTISHOT, "Multishot");
+		put(BULLET_BOUNCE, "Bouncing Bullets");
+		put(CRIT_CHANCE, "Critical Chance");
+		put(CRIT_DAMAGE, "Critical Damage");
+		put(MAX_HEALTH, "Health Upgrade");
+		put(MAX_STAMINA, "Stamina Upgrade");
+		put(IMMUNE_FRAMES, "Immune Time Upgrade");
+		put(SHOP_PRICE_DECREASE, "Shop Sale");
+		put(DAMAGE_RESISTANCE, "Damage Resistance");
+		put(FIRE, "Fire Buff");
+		put(ICE, "Ice Buff");
+		put(ELECTRICITY, "Electricity Buff");
+		put(POISON, "Poison Buff");
+		put(NATURE, "Nature Buff");
+	}};
+	
 	public static final int HEALTH_PER_UPGRADE = 50;
 	public static final int STAMINA_PER_UPGRADE = 50;
+	public static final int IMMUNE_FRAMES_PER_UPGRADE = 15;
 	
 	public HashMap<Integer, Integer> numBuffs;
 	public Player player;	//this is the player that this buff manager is handling buffs for
@@ -69,21 +73,10 @@ public class BuffManager {
 	//gives a list of random buffs.
 	//if the amount of buffs requested is larger than the number of existing buffs, then the amount returned will be equal to the amount of existing buffs.
 	public static ArrayList<Integer> getRandomBuffs(int n){
-		ArrayList<Integer> buffList = new ArrayList<Integer>(Arrays.asList(
-			MULTISHOT, 
-			BULLET_BOUNCE, 
-			CRIT_CHANCE, 
-			CRIT_DAMAGE, 
-			MAX_HEALTH, 
-			MAX_STAMINA, 
-			SHOP_PRICE_DECREASE, 
-			DAMAGE_RESISTANCE, 
-			FIRE, 
-			ICE, 
-			ELECTRICITY, 
-			POISON, 
-			NATURE
-		));
+		ArrayList<Integer> buffList = new ArrayList<Integer>();
+		for(int i : buffTitles.keySet()) {
+			buffList.add(i);
+		}
 		
 		Collections.shuffle(buffList);
 		
@@ -106,20 +99,23 @@ public class BuffManager {
 			break;
 			
 		case CRIT_CHANCE:
-			player.critChance = (numBuffs.get(CRIT_CHANCE) + 1) * 0.1;
+			player.critChance = Player.BASE_CRIT_CHANCE + (double) numBuffs.get(CRIT_CHANCE) * 0.1;
 			break;
 			
 		case CRIT_DAMAGE:
-			player.critMultiplier = (numBuffs.get(CRIT_DAMAGE) + 2);
+			player.critMultiplier = Player.BASE_CRIT_MULTIPlIER + numBuffs.get(CRIT_DAMAGE);
 			break;
 			
 		case MAX_HEALTH:
-			player.maxHealth = 100 + numBuffs.get(MAX_HEALTH) * HEALTH_PER_UPGRADE;
+			player.maxHealth = Player.BASE_HEALTH + numBuffs.get(MAX_HEALTH) * HEALTH_PER_UPGRADE;
 			break;
 			
 		case MAX_STAMINA:
-			player.maxStamina = 100 + numBuffs.get(MAX_STAMINA) * STAMINA_PER_UPGRADE; 
+			player.maxStamina = Player.BASE_STAMINA + numBuffs.get(MAX_STAMINA) * STAMINA_PER_UPGRADE; 
 			break;
+			
+		case IMMUNE_FRAMES:
+			player.immuneTime = Player.BASE_IMMUNE_FRAMES + numBuffs.get(IMMUNE_FRAMES) * IMMUNE_FRAMES_PER_UPGRADE;
 			
 		case SHOP_PRICE_DECREASE:
 			break;
@@ -142,6 +138,12 @@ public class BuffManager {
 		case NATURE:
 			break;
 		}
+	}
+	
+	public void resetBuffs() {
+		this.numBuffs = new HashMap<Integer, Integer>();
+		
+		
 	}
 
 }

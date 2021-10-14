@@ -65,6 +65,9 @@ public class Map {
 	
 	public boolean hasEnemies = false;
 	
+	public int lightStrength = 5;
+	public double minLight = 0;
+	
 	public Map() {
 		map = new int[][] {{0}};
 		mapTileLight = new double[][] {{0}};
@@ -191,8 +194,9 @@ public class Map {
 				//System.out.print(next + " ");
 				if(next > 0) {
 					//baking the lighting into the image
-					next = Math.min(next, 5);
-					double darkness = 1d - ((double) next / 5d);
+					next = Math.min(next, this.lightStrength);
+					double darkness = 1d - ((double) next / (double) this.lightStrength);
+					darkness = Math.max(darkness, this.minLight);
 					this.mapTileLight[i][j] = darkness;
 					this.mapTileTexture[i][j] = GraphicsTools.darkenImage(darkness, this.mapTileTexture[i][j]);
 				}
